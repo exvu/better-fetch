@@ -17,7 +17,7 @@ let api = CFetch.create("api", {
 })
 
 let user = {
-    list: api.get("/list/"),//获取用户列表
+    list: api.get("/list/",),//获取用户列表
     add: api.post("/add/"),//添加用户
     update: api.put("/put/"),//修改用户基本信息
     patch: api.patch("/patch/"),//更新用户部分信息

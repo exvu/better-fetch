@@ -1,26 +1,48 @@
-# charm-fetch 使用文档
-是一款迷人的js请求工具，可以方便地进行js请求  
-当工具默认使用fetch，工具会检测环境是否支持fetch，不支持就使用xmlHTTP  
-由于工具上传文件需要显示进度，所以上传文件一律采用xmlHTTP  
-支持restful  
-支持异步请求  
-工具会自动在querystring中添加随机数,避免低版本出现缓存问题
-# 安装与配置
-```
-npm install -g charm-fetch #全局安装
-npm install --save-dev charm-fetch #局部安装
-```
-安装成功后，就可以使用了  
 
-此工具有两个使用方法  
+charm-fetch 使用文档
+==========
+是一款迷人的js请求工具，可以方便地进行js请求  
+工具会检测环境是否支持fetch，不支持就使用`XMLHttpRequest`   
+由于fetch不支持显示上传进度，所以上传文件一律采用XMLHttpRequest  
+支持`restful`,可以使用GET,POST,DELETE,PUT,PATCH方法  
+支持`Promise`异步请求,可以使用then方法或者await/async  
+工具会在每次请求中自动在url后中添加随机数参数(参数名默认为_r),避免低版本出现接口缓存问题
+
+安装与配置
+==========
+```sh
+$ npm install -g charm-fetch #全局安装
+$ npm install --save-dev charm-fetch #局部安装
+```
+用法
+==========
+用法请参照例子文件夹下  
+## `charm-fetch`两种使用方法
 1. api配置使用
 2. 传统请求
-## 1. api配置使用
-配置如下
+
+# api配置使用
+用于创建一个api请求实例，同一个服务器的请求可以统一使用
+```
+CFetch.create(key,[options])
+```
+## 参数
+* **key** 实例的唯一键，根据key可以拿到配置过的实例
+#### option
+* `url` 基地址，api服务器的地址 例:http://localhost:3000/
+* `request` api请求前的回调函数,可以在这里统一传递公共参数 例如:token
+* `response` api请求响应后，对数据进行处理后返回，必须有返回 返回值将会传递给then的第一个参数
+* `header` 请求头
+* `timeout` 过期时间
+* `returns` 返回api请求对象
+
 ```javascript
 //导入包
 import CFetch from 'charm-fetch';
-//创建实例自动返回api实例
+/**
+ * 此方法可以创建多个实例，
+ * 创建实例自动返回api实例
+ **/
 let api = CFetch.create("api", {
     //基地址 所有请求都会拼接此地址
     url: 'http://localhost:3000/',
@@ -36,10 +58,14 @@ let api = CFetch.create("api", {
 
     }
 })
-//也可以通过getInstance获取指定的api实例
+```
+获取请求对象
+```
+//通过getInstance获取指定的api实例
 let api = CFetch.getInstance("api");
 ```
-使用方法
+
+例子
 ```javascript
 let user = {
     list: api.get("/list/"),//获取用户列表
@@ -98,7 +124,7 @@ let file = await user.download({
     //文件下载进度
 })
 ```
-## 2. 传统请求
+# 传统请求
 使用方法
 ```javascript
 //导入包
