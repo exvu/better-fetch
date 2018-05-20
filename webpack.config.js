@@ -1,12 +1,16 @@
-const webpack = require("webpack");
-const modName = "CHARM-FETCH";
+// const webpack = require("webpack");
+const path = require("path");
+const { name, version } = require('./package');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 
-module.expors = {
-    entry: './lib/index.js',
-    out: {
-        filename: `./dist/${modName}.js`,
-        library: modName,
-        libraryTarget: 'umd',
+module.exports = {
+    entry: path.join(__dirname, '/lib/index.ts'),
+    output: {
+        path: path.join(__dirname, '/dist/'),
+        filename: `${name}-${version}.js`,
+        library: "CFetch",
+        libraryExport: 'default',
+        libraryTarget: 'var',
         umdNamedDefine: true
     },
     resolve: {
@@ -14,7 +18,13 @@ module.expors = {
     },
     module: {
         loaders: [
-            { test: /\.ts?$/, loader: "babel?presets[]=es2015!ts" }
+            { test: /\.ts?$/, loader: "ts-loader" },
+           
         ]
-    }
+    },
+    plugins: [
+        // new UglifyJSPlugin({
+        //     include:''
+        // })
+    ]
 }

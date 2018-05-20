@@ -7,7 +7,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:dist": "webpack",
+    "build:src": "tsc"
   },
   "repository": {
     "type": "git",
@@ -18,5 +19,12 @@
   "bugs": {
     "url": "https://github.com/exvu/charm-fetch/issues"
   },
-  "homepage": "https://github.com/exvu/charm-fetch#readme"
+  "homepage": "https://github.com/exvu/charm-fetch#readme",
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "ts-loader": "^3.1.1",
+    "typescript": "^2.8.3",
+    "uglify-js": "^3.3.25",
+    "webpack": "^3.8.1"
+  }
 }

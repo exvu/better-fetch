@@ -175,15 +175,13 @@ user.add().bind(obj).then(()=>{
 })
 //ref方法
 let a ={};
-user.add().ref((ref)=>{
-    a.ref = ref;
-});
+let ref = user.add().then();
 //使用abort手动结束请求
-a.ref.abort("结束原因");
+ref.abort("结束原因");
 
 //2.await
 //bind
-//obj表示对象，当obj为null时,本工具就会自动终止请求
+//obj表示对象，当obj为被销毁后,本工具就会自动终止请求
 let result = await user.add({},{
     bind:obj
 })

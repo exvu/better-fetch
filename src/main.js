@@ -16,7 +16,8 @@ var __rest = (this && this.__rest) || function (s, e) {
             t[p[i]] = s[p[i]];
     return t;
 };
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
+var fetch_1 = require("./fetch");
 var CFetch = /** @class */ (function () {
     function CFetch() {
     }
@@ -40,70 +41,82 @@ var CFetch = /** @class */ (function () {
     CFetch.instances = {};
     return CFetch;
 }());
-exports.default = CFetch;
+exports["default"] = CFetch;
 var Fetch = /** @class */ (function () {
     function Fetch(options) {
         this._url = options.url;
         this._requestCallBack = options.request;
         this._responseCallBack = options.response;
     }
+    Fetch.prototype._request = function (options) {
+        return function (data) {
+            return fetch_1.doRequest(__assign({}, options, { body: data }));
+        };
+    };
     Fetch.prototype.get = function (url) {
-        return request({
+        return this._request({
             url: url,
             method: 'get'
         });
     };
     Fetch.prototype.post = function (url) {
-        return request({
+        return this._request({
             url: url,
-            method: 'get'
+            method: 'post'
         });
     };
-    Fetch.prototype.delete = function (url) {
-        return request({
+    Fetch.prototype["delete"] = function (url) {
+        return this._request({
             url: url,
-            method: 'get'
+            method: 'delete'
         });
     };
     Fetch.prototype.patch = function (url) {
-        return request({
+        return this._request({
             url: url,
-            method: 'get'
+            method: 'patch'
         });
     };
     Fetch.prototype.put = function (url) {
-        return request({
+        return this._request({
             url: url,
-            method: 'get'
+            method: 'put'
         });
     };
-    Fetch.prototype.upload = function (url, callback) {
-        return request({
+    Fetch.prototype.upload = function (url, options) {
+        return this._request({
             url: url,
-            method: 'get'
+            method: options.method,
+            type: 'upload'
         });
     };
-    Fetch.prototype.down = function (url, callback) {
-        return request({
+    Fetch.prototype.download = function (url, options) {
+        return this._request({
             url: url,
-            method: 'get'
+            method: options.method,
+            type: "download"
         });
     };
     Fetch.prototype.request = function (options) {
-        return request(__assign({}, options, { method: 'get' }));
+        return this._request(options);
     };
     return Fetch;
 }());
-function request(_a) {
-    var url = _a.url, method = _a.method, options = __rest(_a, ["url", "method"]);
-    return new Promise(function (resolve, reject) {
-        //存在fetch就是使用fetch 
-        if ('fetch' in window) {
-            fetch(url, __assign({ method: method }, options)).then(function (res) { return resolve(res.body); }).catch(function (err) {
-                reject(err);
-            });
-        }
-        else {
-        }
-    });
+function upload(_a, callback) {
+    var _b = _a.url, url = _b === void 0 ? '' : _b, _c = _a.method, method = _c === void 0 ? 'POST' : _c, options = __rest(_a, ["url", "method"]);
+    return fetch_1.doRequest(__assign({ url: url,
+        method: method }, options, { type: 'upload', callback: callback }));
 }
+exports.upload = upload;
+function download(_a, callback) {
+    var _b = _a.url, url = _b === void 0 ? '' : _b, _c = _a.method, method = _c === void 0 ? 'GET' : _c, options = __rest(_a, ["url", "method"]);
+    return fetch_1.doRequest(__assign({ url: url,
+        method: method }, options, { type: 'download', callback: callback }));
+}
+exports.download = download;
+function request(_a) {
+    var _b = _a.url, url = _b === void 0 ? '' : _b, _c = _a.method, method = _c === void 0 ? 'GET' : _c, options = __rest(_a, ["url", "method"]);
+    return fetch_1.doRequest(__assign({}, options, { url: url,
+        method: method }));
+}
+exports.request = request;
