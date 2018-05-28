@@ -47,14 +47,14 @@ let api = CFetch.create("api", {
     //基地址 所有请求都会拼接此地址
     url: 'http://localhost:3000/',
     //请求之前的回调函数,可以处理在请求前统一传递公共参数或header
-    request: function (req) {
+    onRequest: function (req) {
        
     },
     /**
      *请求完成后的回调函数,针对api接口可以统一对响应进行处理后返回
      *返回数据将被then方法或await接收
      **/
-    response: function (res) {
+    onResponse: function (res) {
 
     }
 })

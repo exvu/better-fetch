@@ -214,7 +214,9 @@ export default class CRequest {
                         if (Object.prototype.toString.call(callback) == '[object Object]') {
                             reject("callback must object");
                         }
-                        callback.progress && (xmlHttp.upload.onprogress = callback.progress);
+                        callback.progress && (xmlHttp.upload.onprogress = (event) => {
+                            callback.progress(event.loaded, event.total)
+                        });
                         callback.loadstart && (xmlHttp.upload.onloadstart = callback.loadstart);
                         callback.loadend && (xmlHttp.upload.onloadend = callback.loadend);
                         callback.error && (xmlHttp.upload.onerror = callback.error);
@@ -223,7 +225,9 @@ export default class CRequest {
                         callback.load && (xmlHttp.upload.onload = callback.load);
                         break;
                     case 'download':
-                        xmlHttp.onprogress = callback;
+                        xmlHttp.onprogress = (event) => {
+                            callback(event.loaded, event.total)
+                        };
                         xmlHttp.responseType = 'blob';
                         break;
                     default:
