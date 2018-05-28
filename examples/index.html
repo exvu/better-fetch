@@ -1,5 +1,49 @@
 <html>
-    <head></head>
-    <body></body>
-    <script type="text/javascript" src="../dist/charm-fetch-1.0.0.js"></script>
+
+<head></head>
+
+<body>
+    <form id="submit">
+        <input type="file" name="file" />
+        <input type="submit" value="提交" />
+    </form>
+</body>
+<script>
+    var submitBtn = document.getElementById("submit");
+
+    submitBtn.onsubmit = function (event) {
+        event.preventDefault();
+        // CFetch.download({
+        //     url: 'http://localhost:3001/api/admin/groups/1?a=1&b=2', body: {
+        //         file: this.file.files[0]
+        //     }
+        // }, {
+        //         progress: (event) => {
+        //             console.log(event.loaded, event.total)
+        //         }
+        //     }
+        // ).then((res) => res.json()).then(res => console.log(res))
+        let _fetch = CFetch.download({
+            url: 'https://tqapi.t.yyx-tech.com/Home/Versions/downVersions/fname/fa39e86a5b20ca1d5a13addac1a4c84c.zip', body: {
+                file: this.file.files[0]
+            }
+        }, (event) => {
+            console.log(event.loaded, event.total, event)
+        }).then((res) => res.blob()).then(res => {
+            let a = document.createElement('a');
+            a.href = window.URL.createObjectURL(res); // xhr.response is a blob
+            a.download = "1.zip"; // Set the file name.
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+        }).catch(err => console.error(err));
+
+        setTimeout(() => {
+            console.log(_fetch)
+            _fetch.abort()
+        }, 2000)
+    };
+</script>
+<script type="text/javascript" src="../dist/charm-fetch-0.0.1.js"></script>
+
 </html>

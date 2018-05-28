@@ -1,65 +1,119 @@
 "use strict";
-exports.__esModule = true;
-var CRequest = /** @class */ (function () {
-    function CRequest(_options) {
-        this._options = _options;
-        this._thens = [];
-        this._catchs = [];
-        this._fetch();
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
     }
-    /**
-     * 连贯操作
-     */
-    CRequest.prototype.then = function (callback) {
-        this._thens.push(callback);
-        return this;
-    };
-    /**
-     * 异常捕获
-     */
-    CRequest.prototype["catch"] = function (callback) {
-        this._thens.push(callback);
-        return this;
-    };
-    /**
-     * 结束请求
-     */
-    CRequest.prototype.abort = function () {
-    };
-    /**
-     * 当使用then方法时绑定对象
-     * 当对象被销毁时，就终止请求
-     */
-    CRequest.prototype.bind = function (ref) {
-        this._bind = ref;
-        return this;
-    };
-    /**
-     *当使用await/async时绑定对象
-     *可以根据将回调参数调用abort 实现终止请求
-     */
-    CRequest.prototype.ref = function (callback) {
-        callback(this._bind);
-        return this;
-    };
-    CRequest.prototype._fetch = function () {
-        var _this = this;
-        var _a = this._options, url = _a.url, method = _a.method, _b = _a.body, body = _b === void 0 ? {} : _b, _c = _a.headers, headers = _c === void 0 ? {} : _c, onRequest = _a.onRequest, onResponse = _a.onResponse;
+    return t;
+};
+exports.__esModule = true;
+/**
+ *
+ * 解析参数，
+ * 将对象转换成obj[a]的形式
+ * 将数组转换成obj[]的形式
+ */
+function parseParams(_data, prefix) {
+    if (prefix === void 0) { prefix = ''; }
+    var data = [];
+    for (var key in _data) {
+        var _key = prefix == '' ? key : (prefix + '[' + key + ']');
+        //object
+        if (Object.prototype.toString.call(_data[key]) == '[object Object]') {
+            data.push.apply(data, parseParams(_data[key], _key));
+        }
+        else if (Object.prototype.toString.call(_data[key]) == '[object Array]') {
+            for (var _i = 0, _a = _data[key]; _i < _a.length; _i++) {
+                var v = _a[_i];
+                data.push([_key + '[]', v]);
+            }
+        }
+        else {
+            data.push([_key, _data[key]]);
+        }
+    }
+    return data;
+}
+/**
+ * 将参数转换为string
+ */
+function params2String(_data) {
+    var data = parseParams(_data);
+    return data.map(function (item) { return item.join('='); }).join('&');
+}
+exports.params2String = params2String;
+/**
+ * 将参数转换为formdata
+ */
+function params2FormData(_data) {
+    var data = parseParams(_data);
+    var formData = new FormData();
+    for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
+        var value = data_1[_i];
+        formData.append(value[0], value[1]);
+    }
+    return formData;
+}
+exports.params2FormData = params2FormData;
+function buildUrl(url) {
+    return (url).replace(/[^(https?:)]\/\//ig, '\/').replace(/\/\??$/, '');
+}
+exports.buildUrl = buildUrl;
+function doRequest(_options) {
+    return new Promise(function (resolve, reject) {
+        var _a = _options.url, url = _a === void 0 ? '' : _a, method = _options.method, _body = _options.body, _b = _options.headers, headers = _b === void 0 ? {} : _b, onRequest = _options.onRequest, onResponse = _options.onResponse, _c = _options.mode, mode = _c === void 0 ? 'no-cors' : _c, _d = _options.isFetch, isFetch = _d === void 0 ? true : _d;
+        method = method.toUpperCase();
+        url = buildUrl(url);
+        var body = {};
         //参数请求前处理
         if (onRequest) {
-            body = onRequest(body);
+            _body = onRequest(_body);
         }
-        if ('fetch' in window) {
-            fetch(this._options.url, {
-                method: this._options.method,
-                headers: headers
-            }).then(function (res) {
-                if (onResponse) {
-                    return onResponse(res);
+        if (!headers['Content-Type']) {
+            headers['Content-Type'] = 'multipart/form-data';
+        }
+        if (method == 'GET') {
+            var str = params2String(_body || {});
+            if (/[&?]\w+=\sw$/.test(url)) {
+                url += '&' + str;
+            }
+            else {
+                url += '?' + str;
+            }
+        }
+        else {
+            //数据存在 并且长度大于0
+            if (_body && Object.prototype.toString.call(_body) === '[object Object]' && Object.keys(_body).length > 0) {
+                switch (headers['Content-Type']) {
+                    case 'multipart/form-data':
+                        //转换数据
+                        body = params2FormData(_body);
+                        break;
+                    case 'text/xml':
+                        body = _body;
+                        break;
+                    case 'application/json':
+                        body = JSON.stringify(_body);
+                        break;
+                    case 'application/x-www-form-urlencoded':
+                    default:
+                        body = params2String(_body);
+                        break;
                 }
-                return res;
+            }
+        }
+        if ('fetch' in window && isFetch) {
+            console.log(url, __assign({ method: _options.method, headers: headers,
+                mode: mode }, method == 'GET' ? { body: body } : {}));
+            fetch(encodeURI(url), __assign({ method: _options.method, headers: headers,
+                mode: mode }, method == 'GET' ? { body: body } : {})).then(function (res) {
+                if (onResponse) {
+                    res = onResponse(res);
+                }
+                resolve(res);
             })["catch"](function (err) {
-                _this._response(err, null);
+                reject(err);
             });
         }
         else {
@@ -73,36 +127,45 @@ var CRequest = /** @class */ (function () {
             }
             xmlHttp_1.onreadystatechange = function () {
                 try {
-                    _this._response(null, onResponse ? onResponse(xmlHttp_1) : xmlHttp_1);
+                    if (xmlHttp_1.readyState != 4) {
+                        return;
+                    }
+                    var headers_1 = {};
+                    xmlHttp_1.getAllResponseHeaders().split('\n').forEach(function (item) {
+                        var index = item.indexOf(':');
+                        if (index != -1) {
+                            headers_1[item.substring(0, index)] = item.substr(index + 1).trim();
+                        }
+                    });
+                    var res = new Response(xmlHttp_1.responseText, {
+                        headers: headers_1
+                    });
+                    resolve(res);
                 }
                 catch (err) {
-                    _this._response(err, xmlHttp_1);
+                    reject(err);
                 }
             };
-            xmlHttp_1.open(method, url, true);
-            xmlHttp_1.send();
+            xmlHttp_1.open(method, encodeURI(url), true);
+            xmlHttp_1.send(method == 'GET' ? body : null);
         }
+    });
+}
+exports.doRequest = doRequest;
+var CRequest = /** @class */ (function () {
+    function CRequest(_options) {
+        this._options = _options;
+    }
+    CRequest.prototype.request = function () {
+        return this.doFetch();
     };
-    CRequest.prototype._response = function (err, res) {
-        var options = this._options;
-        for (var _i = 0, _a = this._thens; _i < _a.length; _i++) {
-            var thenFun = _a[_i];
-            try {
-                options = thenFun(options);
-            }
-            catch (e) {
-                for (var _b = 0, _c = this._catchs; _b < _c.length; _b++) {
-                    var catchFun = _c[_b];
-                    try {
-                        options = catchFun(options);
-                        break;
-                    }
-                    catch (e) {
-                        continue;
-                    }
-                }
-            }
-        }
+    CRequest.prototype.doFetch = function () {
+        return new Promise(function (resolve, reject) {
+        });
+    };
+    CRequest.prototype.doXmlHttpRequest = function () {
+        return new Promise(function (resolve, reject) {
+        });
     };
     return CRequest;
 }());
