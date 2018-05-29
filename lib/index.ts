@@ -102,7 +102,7 @@ class Fetch {
             return url;
         }
         //去除多余的/ 保留一个即可
-        return (this._options.url + url).replace(/[^(https?:)]\/\//ig, '\/');
+        return this._options.url + url;
     }
     //请求数据
     private _request(options: { url: string, method: string, type?: 'request' | 'upload' | 'download', isFetch?: boolean }) {
@@ -111,6 +111,7 @@ class Fetch {
             return new CRequest({
                 ...this._options,
                 ...options,
+                type:"request",
                 body: data,
                 callback,
             }).request();
@@ -123,7 +124,7 @@ class Fetch {
             body
         }).querystring();
     }
-    public get(url: string, options: { [index: string]: string | Function | Boolean | Number }): Function {
+    public get(url: string, options: { [index: string]: string | Function | Boolean | Number }={}): Function {
 
         return this._request({
             ...options,
@@ -131,35 +132,35 @@ class Fetch {
             method: 'get',
         })
     }
-    public post(url: string, options: { [index: string]: string | Function | Boolean | Number }): Function {
+    public post(url: string, options: { [index: string]: string | Function | Boolean | Number }={}): Function {
         return this._request({
             ...options,
             method: 'post',
             url: this.joinUrl(url),
         })
     }
-    public delete(url: string, options: { [index: string]: string | Function | Boolean | Number }): Function {
+    public delete(url: string, options: { [index: string]: string | Function | Boolean | Number }={}): Function {
         return this._request({
             ...options,
             method: 'delete',
             url: this.joinUrl(url),
         })
     }
-    public patch(url: string, options: { [index: string]: string | Function | Boolean | Number }): Function {
+    public patch(url: string, options: { [index: string]: string | Function | Boolean | Number }= { }): Function {
         return this._request({
             ...options,
             url: this.joinUrl(url),
             method: 'patch',
         })
     }
-    public put(url: string, options: { [index: string]: string | Function | Boolean | Number }): Function {
+    public put(url: string, options: { [index: string]: string | Function | Boolean | Number }={}): Function {
         return this._request({
             ...options,
             url: this.joinUrl(url),
             method: 'put',
         })
     }
-    public upload(url: string, options: { method: 'POST' | 'PATCH' | 'PUT' | 'DELETE', [index: string]: string | Function | Boolean | Number }): Function {
+    public upload(url: string, options: { method: 'POST' | 'PATCH' | 'PUT' | 'DELETE', [index: string]: string | Function | Boolean | Number } = { method: 'POST' }): Function {
 
         return this._request({
             ...options,
@@ -169,7 +170,7 @@ class Fetch {
             isFetch: false
         })
     }
-    public download(url: string, options: { method: 'POST' | 'PATCH' | 'PUT' | 'DELETE' }): Function {
+    public download(url: string, options: { method: 'POST' | 'PATCH' | 'PUT' | 'DELETE' }= { method: 'POST' }): Function {
         return this._request({
             ...options,
             method: options.method || 'POST',

@@ -35,7 +35,6 @@ function parseParams(_data: { [key: string]: any }, prefix: string = '') {
             data.push([_key, _data[key]]);
         }
     }
-    console.log(data)
     return data;
 }
 /**
@@ -54,14 +53,13 @@ export function params2FormData(_data: { [key: string]: any }): FormData {
     let data: Array<Array<any>> = parseParams(_data);
     let formData = new FormData();
     for (let value of data) {
-        console.log(value)
         formData.append(value[0], value[1]);
     }
     return formData;
 }
 
 export function buildUrl(url: string): string {
-    return (url).replace(/[^(https?:)]\/\//ig, '\/').replace(/\/\??$/, '');
+    return (url).replace(/([^(https?:)])(\/)+/ig, '$1\/').replace(/\/\??$/, '\/');
 }
 export default class CRequest {
 
@@ -78,7 +76,7 @@ export default class CRequest {
         let body: any = {};
         //参数请求前处理
         if (onRequest) {
-            _body = onRequest(_body);
+            _body = onRequest(_body || {});
         }
         if (!headers['Content-Type']) {
             headers['Content-Type'] = 'multipart/form-data';
@@ -112,7 +110,7 @@ export default class CRequest {
             }
         }
         this._options = {
-            url: encodeURI(url), method, headers, body, mode, isFetch, callback, timeout, type
+            url: encodeURI(url), method, headers, body, mode, isFetch, callback, timeout, type,onRequest,onResponse
         }
         this._options = this.objectFilter(this._options, (key, value) => value != undefined || value != null);
     }
@@ -172,10 +170,11 @@ export default class CRequest {
                     throw error;
                 }).then((res: Response) => {
                     if (onResponse) {
-                        res = onResponse(res);
+                        return onResponse(res);
+                    } else {
+                        return res;
                     }
-                    resolve(res);
-                }).catch((err) => {
+                }).then(res => resolve(res)).catch((err) => {
                     clearTimeout(timeoutId);
                     reject(err)
                 });
@@ -249,7 +248,8 @@ export default class CRequest {
                         let res = new Response(xmlHttp.response, {
                             headers
                         });
-                        resolve(res);
+                        
+                        resolve(onResponse(res));
                     } catch (err) {
                         reject(err)
                     }

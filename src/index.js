@@ -16,8 +16,11 @@ var __rest = (this && this.__rest) || function (s, e) {
             t[p[i]] = s[p[i]];
     return t;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 exports.__esModule = true;
-var request_1 = require("./request");
+var request_1 = __importDefault(require("./request"));
 var CFetch = /** @class */ (function () {
     function CFetch() {
     }
@@ -34,6 +37,24 @@ var CFetch = /** @class */ (function () {
     CFetch.create = function (key, options) {
         this.instances[key] = new Fetch(options);
         return this.instances[key];
+    };
+    CFetch.upload = function (_a, callback) {
+        var _b = _a.url, url = _b === void 0 ? '' : _b, _c = _a.method, method = _c === void 0 ? 'POST' : _c, options = __rest(_a, ["url", "method"]);
+        return new request_1["default"](__assign({}, options, { method: method, type: 'upload', url: url,
+            callback: callback, isFetch: false })).request();
+    };
+    CFetch.download = function (_a, callback) {
+        var _b = _a.url, url = _b === void 0 ? '' : _b, _c = _a.method, method = _c === void 0 ? 'GET' : _c, options = __rest(_a, ["url", "method"]);
+        return new request_1["default"](__assign({}, options, { url: url,
+            method: method, type: 'download', callback: callback, isFetch: false })).request();
+    };
+    CFetch.querystring = function (options) {
+        return new request_1["default"](__assign({}, options, { method: 'GET' })).querystring();
+    };
+    CFetch.request = function (_a) {
+        var _b = _a.url, url = _b === void 0 ? '' : _b, _c = _a.method, method = _c === void 0 ? 'GET' : _c, options = __rest(_a, ["url", "method"]);
+        return new request_1["default"](__assign({}, options, { url: url,
+            method: method, type: 'request' })).request();
     };
     /**
     * 实例数组  可以有多个fetch对象
@@ -52,78 +73,48 @@ var Fetch = /** @class */ (function () {
             return url;
         }
         //去除多余的/ 保留一个即可
-        return (this._options.url + url).replace(/[^(https?:)]\/\//ig, '\/');
+        return this._options.url + url;
     };
     //请求数据
     Fetch.prototype._request = function (options) {
+        var _this = this;
         return function (data, callback) {
-            return request_1.doRequest(__assign({}, options, { body: data, callback: callback }));
+            return new request_1["default"](__assign({}, _this._options, options, { type: "request", body: data, callback: callback })).request();
         };
     };
-    Fetch.prototype.get = function (url) {
-        return this._request({
-            url: this.joinUrl(url),
-            method: 'get'
-        });
+    Fetch.prototype.querystring = function (body) {
+        return new request_1["default"](__assign({}, this._options, { method: 'GET', body: body })).querystring();
     };
-    Fetch.prototype.post = function (url) {
-        return this._request({
-            url: this.joinUrl(url),
-            method: 'post'
-        });
+    Fetch.prototype.get = function (url, options) {
+        if (options === void 0) { options = {}; }
+        return this._request(__assign({}, options, { url: this.joinUrl(url), method: 'get' }));
     };
-    Fetch.prototype["delete"] = function (url) {
-        return this._request({
-            url: this.joinUrl(url),
-            method: 'delete'
-        });
+    Fetch.prototype.post = function (url, options) {
+        if (options === void 0) { options = {}; }
+        return this._request(__assign({}, options, { method: 'post', url: this.joinUrl(url) }));
     };
-    Fetch.prototype.patch = function (url) {
-        return this._request({
-            url: this.joinUrl(url),
-            method: 'patch'
-        });
+    Fetch.prototype["delete"] = function (url, options) {
+        if (options === void 0) { options = {}; }
+        return this._request(__assign({}, options, { method: 'delete', url: this.joinUrl(url) }));
     };
-    Fetch.prototype.put = function (url) {
-        return this._request({
-            url: this.joinUrl(url),
-            method: 'put'
-        });
+    Fetch.prototype.patch = function (url, options) {
+        if (options === void 0) { options = {}; }
+        return this._request(__assign({}, options, { url: this.joinUrl(url), method: 'patch' }));
+    };
+    Fetch.prototype.put = function (url, options) {
+        if (options === void 0) { options = {}; }
+        return this._request(__assign({}, options, { url: this.joinUrl(url), method: 'put' }));
     };
     Fetch.prototype.upload = function (url, options) {
-        return this._request({
-            url: this.joinUrl(url),
-            method: options.method,
-            type: 'upload'
-        });
+        if (options === void 0) { options = { method: 'POST' }; }
+        return this._request(__assign({}, options, { url: this.joinUrl(url), method: options.method || 'POST', type: 'upload', isFetch: false }));
     };
     Fetch.prototype.download = function (url, options) {
-        return this._request({
-            url: this.joinUrl(url),
-            method: options.method,
-            type: "download"
-        });
+        if (options === void 0) { options = { method: 'POST' }; }
+        return this._request(__assign({}, options, { method: options.method || 'POST', type: "download", url: this.joinUrl(url), isFetch: false }));
     };
     Fetch.prototype.request = function (options) {
-        return this._request(options);
+        return this._request(__assign({}, options, { type: "request" }));
     };
     return Fetch;
 }());
-function upload(_a, callback) {
-    var _b = _a.url, url = _b === void 0 ? '' : _b, _c = _a.method, method = _c === void 0 ? 'POST' : _c, options = __rest(_a, ["url", "method"]);
-    return request_1.doRequest(__assign({ url: url,
-        method: method }, options, { type: 'upload', callback: callback }));
-}
-exports.upload = upload;
-function download(_a, callback) {
-    var _b = _a.url, url = _b === void 0 ? '' : _b, _c = _a.method, method = _c === void 0 ? 'GET' : _c, options = __rest(_a, ["url", "method"]);
-    return request_1.doRequest(__assign({ url: url,
-        method: method }, options, { type: 'download', callback: callback }));
-}
-exports.download = download;
-function request(_a) {
-    var _b = _a.url, url = _b === void 0 ? '' : _b, _c = _a.method, method = _c === void 0 ? 'GET' : _c, options = __rest(_a, ["url", "method"]);
-    return request_1.doRequest(__assign({}, options, { url: url,
-        method: method }));
-}
-exports.request = request;
