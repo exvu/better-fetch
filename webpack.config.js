@@ -13,18 +13,28 @@ module.exports = {
         libraryTarget: 'var',
         umdNamedDefine: true
     },
+    externals: function () {
+        let manifest = require('./package.json');
+        let dependencies = manifest.dependencies;
+        let externals = {};
+        for (let p in dependencies) {
+            externals[p] = 'commonjs ' + p;
+        }
+        externals["cfg"] = "commonjs cfg";
+        return externals;
+    }(),
     resolve: {
         extensions: [".ts", ".js"]
     },
     module: {
         loaders: [
             { test: /\.ts?$/, loader: "ts-loader" },
-           
+
         ]
     },
     plugins: [
-        // new UglifyJSPlugin({
-        //     include:''
-        // })
+        new UglifyJSPlugin({
+         
+        })
     ]
 }
