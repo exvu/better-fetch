@@ -1,16 +1,14 @@
-import CFetch from './cFetch';
+import Api from './api';
 
-let api = CFetch.create("api", {
-    url: "",
-    onRequest: (req:any) => {
+let api = new Api("api", {
+    baseUrl: "",
+    onRequest: (req: any) => {
 
 
         req.setHeader("afasdf")
         //上传token
     },
-    onRequest: (res:any => {
+    onResponse: (res: any) => {
         //保存token
     }
 });
-
-Headers

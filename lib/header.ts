@@ -49,6 +49,10 @@ export default class Headers {
         return Object.keys(this.map);
     }
     public values() {
-        return Object.values(this.map);
+        let list = [];
+        for (let name in this.map) {
+            list.push(this.map[name].join(';'))
+        }
+        return list;
     }
 }

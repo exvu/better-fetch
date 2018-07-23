@@ -1,2 +1,2 @@
 
-export { default as cFetch } from "./cFetch";
+export { default as Api } from "./api";
