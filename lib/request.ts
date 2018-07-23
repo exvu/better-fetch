@@ -3,7 +3,7 @@ import Headers from './header';
 import { normalizeMethod } from './common';
 import Body from './body';
 interface RequestInit {
-    header?: Headers,
+    headers?: Headers,
     body?: RequestBody,
     bodyUsed?: boolean,
     url?: string,
@@ -30,7 +30,7 @@ export default class Request extends Body {
             this.url = options.url || '';
             this.method = options.method || '';
             this.mode = options.mode || "no-cors";
-            if (!options.header) {
+            if (!options.headers) {
                 this.headers = new Headers(input.headers);
             }
             if (!this.body) {
@@ -41,8 +41,8 @@ export default class Request extends Body {
             this.url = input;
         }
 
-        if (options.header || !this.headers) {
-            this.headers = new Headers(options.header);
+        if (options.headers || !this.headers) {
+            this.headers = new Headers(options.headers);
         }
         this.method = normalizeMethod(options.method || this.method || 'GET')
         this.mode = options.mode || this.mode || null;

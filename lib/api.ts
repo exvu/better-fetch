@@ -73,6 +73,7 @@ export default class Api {
         return doRequest(this.joinUrl(url), {
             ...this._options,
             ...options,
+            //合并header
             headers: {
                 ...this._options.headers,
                 ...options.headers,

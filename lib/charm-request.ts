@@ -52,19 +52,21 @@ export function buildUrl(url: string): string {
     return (url).replace(/([^(https?:)])(\/)+/ig, '$1\/').replace(/\/\??$/, '\/');
 }
 export function doRequest(url: string, {
-    method, headers, mode, onResponse, onRequest, callback, timeout
+    method, headers, mode, onResponse, onRequest, callback, timeout, body
 }: {
         method: string, mode: RequestMode, headers: { [index: string]: string },
         onRequest: (req: Request) => any,
         onResponse: (res: Response) => any,
         callback: { [index: string]: any },
+        body: { [index: string]: any },
         timeout: number
     }): Promise<Response> {
     //创建请求对象
     let request = new Request(buildUrl(url), {
         method,
-        header: new Headers(headers),
+        headers: new Headers(headers),
         mode,
+        body
     });
     //调用onrequest
     onRequest(request);
@@ -116,7 +118,7 @@ export function doXmlHttpRequest(request: Request, { onResponse, callback, timeo
                         }
                     })
                     let res = new Response(xmlHttp.response, {
-                        headers: new Headers(xmlHttp.getAllResponseHeaders()),
+                        headers: new Headers(headers),
                         status: xmlHttp.status,
                         statusText: xmlHttp.statusText,
                     });
