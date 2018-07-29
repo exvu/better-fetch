@@ -40,7 +40,6 @@ export default class Request extends Body {
         } else {
             this.url = input;
         }
-
         if (options.headers || !this.headers) {
             this.headers = new Headers(options.headers);
         }

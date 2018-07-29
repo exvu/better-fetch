@@ -8,7 +8,7 @@ interface CreateOption {
     //基地址
     baseUrl: string,
     //请求发送之前的回调
-    onRequest?: (req: Request) => any,
+    onRequest?: (req: Request, data: any) => any,
     headers?: {
         [key: string]: string
     },
@@ -53,10 +53,13 @@ export default class Api {
     private joinUrl(url: string): string {
 
         if (/^(https?:)?\/\//.test(url)) {
-            return url;
+            return this.build(url);
         }
         //去除多余的/ 保留一个即可
-        return this._options.baseUrl + url;
+        return this.build(this._options.baseUrl + url);
+    }
+    private build(url: string) {
+        return (url).replace(/([^(https?:)])(\/)+/ig, '$1\/').replace(/\/\//,"\/");
     }
     /**
      * 获取请求的url
@@ -65,8 +68,17 @@ export default class Api {
     public querystring(url: string): string {
         return this.joinUrl(url);
     }
-    public get(url: string, options: { [index: string]: any } = {}) {
-        return this._request(url, 'get', options);
+    public get(url: string, data: any = {}, options: { [index: string]: any } = {}) {
+        return this._request(url, 'get', {
+            ...options,
+            data
+        });
+    }
+    public post(url: string, data: any = {}, options: { [index: string]: any } = {}) {
+        return this._request(url, 'post', {
+            ...options,
+            data
+        });
     }
     private _request(url: string, method: string, options: any) {
 

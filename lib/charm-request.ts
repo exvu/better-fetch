@@ -1,83 +1,40 @@
 import Request, { RequestMode } from './request';
 import Response from './response';
 import Headers from './header';
-/**
- * 
- * 解析参数，
- * 将对象转换成obj[a]的形式
- * 将数组转换成obj[]的形式
- */
-function parseParams(_data: { [key: string]: any }, prefix: string = '') {
-    let data: Array<Array<any>> = [];
-    for (let key in _data) {
-        if (_data[key] == undefined) {
-            continue;
-        }
-        let _key = prefix == '' ? key : (prefix + '[' + key + ']');
-        //object
-        if (Object.prototype.toString.call(_data[key]) == '[object Object]') {
-            data.push(...parseParams(_data[key], _key));
-        } else if (Object.prototype.toString.call(_data[key]) == '[object Array]') {
-            for (let v of _data[key]) {
-                data.push([_key + '[]', v]);
-            }
-        } else {
-            data.push([_key, _data[key]]);
-        }
-    }
-    return data;
-}
-/**
- * 将参数转换为string
- */
-export function params2String(_data: { [key: string]: any }): string {
-
-    let data: Array<Array<any>> = parseParams(_data);
-    return data.map(item => item.join('=')).join('&');
-}
-/**
- * 将参数转换为formdata
- */
-export function params2FormData(_data: { [key: string]: any }): FormData {
-
-    let data: Array<Array<any>> = parseParams(_data);
-    let formData = new FormData();
-    for (let value of data) {
-        formData.append(value[0], value[1]);
-    }
-    return formData;
-}
 
 export function buildUrl(url: string): string {
     return (url).replace(/([^(https?:)])(\/)+/ig, '$1\/').replace(/\/\??$/, '\/');
 }
 export function doRequest(url: string, {
-    method, headers, mode, onResponse, onRequest, callback, timeout, body
+    method, headers, mode, onResponse, onRequest, callback, timeout, data, xhr
 }: {
         method: string, mode: RequestMode, headers: { [index: string]: string },
-        onRequest: (req: Request) => any,
+        onRequest: (req: Request, data: any) => any,
         onResponse: (res: Response) => any,
         callback: { [index: string]: any },
-        body: { [index: string]: any },
-        timeout: number
+        data: { [index: string]: any },
+        timeout: number,
+        xhr: Function
     }): Promise<Response> {
+
     //创建请求对象
     let request = new Request(buildUrl(url), {
         method,
         headers: new Headers(headers),
         mode,
-        body
+        body: method.toLocaleUpperCase() == 'GET' ? null : data
     });
     //调用onrequest
-    onRequest(request);
+    onRequest(request, data);
     return doXmlHttpRequest(request, {
-        onResponse, callback, timeout
+        onResponse, callback, timeout, xhr
     });
 }
-export function doXmlHttpRequest(request: Request, { onResponse, callback, timeout }: {
+export function doXmlHttpRequest(request: Request, { onResponse, callback, timeout, xhr }: {
     onResponse: (res: Response) => any,
     callback: { [index: string]: any, },
-    timeout: number
+    timeout: number,
+    xhr: Function
 }): Promise<Response> {
     return new Promise((resolve, reject) => {
         try {
@@ -92,20 +49,11 @@ export function doXmlHttpRequest(request: Request, { onResponse, callback, timeo
                 xmlHttp.timeout = timeout;
             }
             xmlHttp.open(request.method, request.url, true);
-            if (Object.prototype.toString.call(callback) == '[object Object]') {
-                callback.progress && (xmlHttp.upload.onprogress = (event) => {
-                    callback.progress(event.loaded, event.total)
-                });
-                callback.loadstart && (xmlHttp.upload.onloadstart = callback.loadstart);
-                callback.loadend && (xmlHttp.upload.onloadend = callback.loadend);
-                callback.error && (xmlHttp.upload.onerror = callback.error);
-                callback.timeout && (xmlHttp.upload.ontimeout = callback.timeout);
-                callback.abort && (xmlHttp.upload.onabort = callback.abort);
-                callback.load && (xmlHttp.upload.onload = callback.load);
-            } else {
-                reject("callback must object");
-            }
-            xmlHttp.onload = () => {
+
+            //调用xhr方法
+            xhr(xmlHttp);
+
+            xmlHttp.onreadystatechange = xmlHttp.onload = function onload() {
                 try {
                     if (xmlHttp.readyState != 4) {
                         return;
@@ -117,13 +65,16 @@ export function doXmlHttpRequest(request: Request, { onResponse, callback, timeo
                             headers[item.substring(0, index)] = item.substr(index + 1).trim();
                         }
                     })
-                    let res = new Response(xmlHttp.response, {
+                    let res = new Response(xmlHttp.statusText, {
                         headers: new Headers(headers),
                         status: xmlHttp.status,
                         statusText: xmlHttp.statusText,
                     });
-
-                    resolve(onResponse(res));
+                    res = onResponse(res);
+                    if (!(res instanceof Response)) {
+                        reject("onResponse must return response object");
+                    }
+                    resolve(res);
                 } catch (err) {
                     reject(err)
                 }
@@ -131,9 +82,11 @@ export function doXmlHttpRequest(request: Request, { onResponse, callback, timeo
             xmlHttp.onerror = (err) => {
                 reject(err)
             }
-            xmlHttp.send(request.method != 'GET' ? request.body : null);
+            xmlHttp.send(request._bodyInit || null);
         } catch (e) {
             reject(e);
         }
     });
-}
+};
+
+

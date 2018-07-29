@@ -3,7 +3,7 @@ import { support, readBlobAsArrayBuffer, readBlobAsText, decode } from './common
 export default class Body {
 
     public bodyUsed: boolean = false;
-    protected _bodyInit: any;
+    public _bodyInit: any;
     protected _bodyText: string = '';
     protected _bodyBlob: Blob | null = null;
     protected _bodyFormData: FormData | null = null;

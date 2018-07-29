@@ -20,6 +20,12 @@ export function normalizeMethod(method: string) {
     var upcased = method.toUpperCase()
     return (methods.indexOf(upcased) > -1) ? upcased : method
 }
+
+let window = {
+    blob: 1,
+    formData:1,
+    arrayBuffer: 1
+}
 export const support = {
     blob: 'FileReader' in window && 'Blob' in window && (function () {
         try {
@@ -75,4 +81,51 @@ export function decode(body: any) {
         }
     })
     return form
+}
+
+/**
+ * 
+ * 解析参数，
+ * 将对象转换成obj[a]的形式
+ * 将数组转换成obj[]的形式
+ */
+function parseParams(_data: { [key: string]: any }, prefix: string = '') {
+    let data: Array<Array<any>> = [];
+    for (let key in _data) {
+        if (_data[key] == undefined) {
+            continue;
+        }
+        let _key = prefix == '' ? key : (prefix + '[' + key + ']');
+        //object
+        if (Object.prototype.toString.call(_data[key]) == '[object Object]') {
+            data.push(...parseParams(_data[key], _key));
+        } else if (Object.prototype.toString.call(_data[key]) == '[object Array]') {
+            for (let v of _data[key]) {
+                data.push([_key + '[]', v]);
+            }
+        } else {
+            data.push([_key, _data[key]]);
+        }
+    }
+    return data;
+}
+/**
+ * 将参数转换为string
+ */
+export function object2query(_data: { [key: string]: any }): string {
+
+    let data: Array<Array<any>> = parseParams(_data);
+    return data.map(item => item.join('=')).join('&');
+}
+/**
+ * 将参数转换为formdata
+ */
+export function params2FormData(_data: { [key: string]: any }): FormData {
+
+    let data: Array<Array<any>> = parseParams(_data);
+    let formData = new FormData();
+    for (let value of data) {
+        formData.append(value[0], value[1]);
+    }
+    return formData;
 }
