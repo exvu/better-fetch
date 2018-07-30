@@ -14,8 +14,12 @@
         var xhr;
         var api = new CApi("api", {
             baseUrl: 'http://localhost:8080/admin/',
-            onRequest: function (req) {
+            onRequest: function ( req) {
                 req.url = req.url + '?_time=' + Math.random();
+                req.data = {
+                    a:1,
+                    b:2
+                }
                 // req.headers.set('Content-Type', 'multipart/form-data');
                 // req.headers.set('Content-Type', 'application/json');
             },

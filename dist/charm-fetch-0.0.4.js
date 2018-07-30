@@ -651,36 +651,36 @@ function buildUrl(url) {
 exports.buildUrl = buildUrl;
 function doRequest(url, _a) {
     var method = _a.method, headers = _a.headers, mode = _a.mode, onResponse = _a.onResponse, onRequest = _a.onRequest, timeout = _a.timeout, data = _a.data, xhr = _a.xhr;
-    var body;
-    //创建请求对象
-    var request = new request_1["default"](buildUrl(url), {
-        method: method,
+    var options = {
+        url: buildUrl(url),
         headers: new header_1["default"](headers),
-        mode: mode
-    });
+        mode: mode,
+        data: data
+    };
     //调用onrequest
-    onRequest(request, data);
+    onRequest(options);
+    var body;
     //不存在数据,就自动判断
-    if (!request.headers.get('Content-Type')) {
-        if (typeof data !== "object") {
+    if (!options.headers.get('Content-Type')) {
+        if (typeof options.data !== "object") {
             try {
-                data = JSON.parse(data);
-                request.headers.set('Content-Type', "application/json");
+                options.data = JSON.parse(options.data);
+                options.headers.set('Content-Type', "application/json");
             }
             catch (e) {
-                request.headers.set('Content-Type', "text/plain");
+                options.headers.set('Content-Type', "text/plain");
             }
         }
         else {
             if (common_1.isIncloudFile(data)) {
-                request.headers.set('Content-Type', "multipart/form-data");
+                options.headers.set('Content-Type', "multipart/form-data");
             }
             else {
-                request.headers.set('Content-Type', "application/x-www-form-urlencoded");
+                options.headers.set('Content-Type', "application/x-www-form-urlencoded");
             }
         }
     }
-    var contentType = request.headers.get('Content-Type') || '';
+    var contentType = options.headers.get('Content-Type') || '';
     var index = contentType.indexOf(';');
     var dataType = index != -1 ?
         contentType.substring(0, contentType)
@@ -688,11 +688,11 @@ function doRequest(url, _a) {
     switch (dataType) {
         case "application/json":
             try {
-                if (typeof data === "string") {
-                    body = JSON.parse(data);
+                if (typeof options.data === "string") {
+                    body = JSON.parse(options.data);
                 }
                 else if (typeof data == "object") {
-                    body = JSON.stringify(data);
+                    body = JSON.stringify(options.data);
                 }
                 else {
                     throw new Error("application/json allow data type json string or object");
@@ -703,21 +703,21 @@ function doRequest(url, _a) {
             }
             break;
         case "application/x-www-form-urlencoded":
-            if (typeof data == "object") {
-                body = common_1.object2query(data);
+            if (typeof options.data == "object") {
+                body = common_1.object2query(options.data);
             }
             else {
                 throw new Error("application/x-www-form-urlencoded  allow data type object");
             }
             break;
         case "multipart/form-data":
-            if (typeof data == "object") {
-                body = common_1.params2FormData(data);
+            if (typeof options.data == "object") {
+                body = common_1.params2FormData(options.data);
             }
             else {
                 throw new Error("multipart/form-data allow  data type object");
             }
-            request.headers["delete"]('content-type');
+            options.headers["delete"]('content-type');
             break;
         case "text/plain":
         default:
@@ -726,10 +726,12 @@ function doRequest(url, _a) {
             }
             break;
     }
-    request._initBody(body, {
+    //创建请求对象
+    var request = new request_1["default"](options.url, {
         method: method,
-        headers: new header_1["default"](headers),
-        mode: mode
+        headers: options.headers,
+        mode: options.mode,
+        body: method.toLocaleUpperCase() == 'GET' ? null : body
     });
     return doXmlHttpRequest(request, {
         onResponse: onResponse, timeout: timeout, xhr: xhr

@@ -10,43 +10,49 @@ export function doRequest(url: string, {
     method, headers, mode, onResponse, onRequest, timeout, data, xhr
 }: {
         method: string, mode: RequestMode, headers: { [index: string]: string },
-        onRequest: (req: Request, data: any) => any,
+        onRequest: (req: any) => any,
         onResponse: (res: Response) => any,
         data: { [index: string]: any } | string,
         timeout: number,
         xhr: Function
     }): Promise<Response> {
-    let body: any;
-    //创建请求对象
-    let request = new Request(buildUrl(url), {
-        method,
+
+    let options: {
+        url: string,
+        headers: Headers,
+        mode: RequestMode,
+        data: { [index: string]: any } | string,
+    } = {
+        url: buildUrl(url),
         headers: new Headers(headers),
         mode,
-    });
+        data,
+    }
     //调用onrequest
-    onRequest(request, data);
+    onRequest(options);
+    let body: any;
 
     //不存在数据,就自动判断
-    if (!request.headers.get('Content-Type')) {
-        if (typeof data !== "object") {
+    if (!options.headers.get('Content-Type')) {
+        if (typeof options.data !== "object") {
             try {
-                data = JSON.parse(data);
-                request.headers.set('Content-Type', "application/json");
+                options.data = JSON.parse(options.data);
+                options.headers.set('Content-Type', "application/json");
 
             } catch (e) {
-                request.headers.set('Content-Type', "text/plain");
+                options.headers.set('Content-Type', "text/plain");
             }
 
         } else {
             if (isIncloudFile(data)) {
-                request.headers.set('Content-Type', "multipart/form-data");
+                options.headers.set('Content-Type', "multipart/form-data");
             } else {
-                request.headers.set('Content-Type', "application/x-www-form-urlencoded");
+                options.headers.set('Content-Type', "application/x-www-form-urlencoded");
             }
         }
 
     }
-    let contentType = request.headers.get('Content-Type') || '';
+    let contentType = options.headers.get('Content-Type') || '';
     let index = contentType.indexOf(';')
     let dataType = index != -1 ?
         contentType.substring(0, contentType)
@@ -55,10 +61,10 @@ export function doRequest(url: string, {
     switch (dataType) {
         case "application/json":
             try {
-                if (typeof data === "string") {
-                    body = JSON.parse(data);
+                if (typeof options.data === "string") {
+                    body = JSON.parse(options.data);
                 } else if (typeof data == "object") {
-                    body = JSON.stringify(data);
+                    body = JSON.stringify(options.data);
                 } else {
                     throw new Error("application/json allow data type json string or object");
                 }
@@ -68,19 +74,19 @@ export function doRequest(url: string, {
             break;
         case "application/x-www-form-urlencoded":
 
-            if (typeof data == "object") {
-                body = object2query(data);
+            if (typeof options.data == "object") {
+                body = object2query(options.data);
             } else {
                 throw new Error("application/x-www-form-urlencoded  allow data type object");
             }
             break;
         case "multipart/form-data":
-            if (typeof data == "object") {
-                body = params2FormData(data);
+            if (typeof options.data == "object") {
+                body = params2FormData(options.data);
             } else {
                 throw new Error("multipart/form-data allow  data type object");
             }
-            request.headers.delete('content-type');
+            options.headers.delete('content-type');
             break;
         case "text/plain":
         default:
@@ -89,12 +95,13 @@ export function doRequest(url: string, {
             }
             break;
     }
-
-    request._initBody(body, {
+    //创建请求对象
+    let request = new Request(options.url, {
         method,
-        headers: new Headers(headers),
-        mode,
-    })
+        headers: options.headers,
+        mode: options.mode,
+        body: method.toLocaleUpperCase() == 'GET' ? null : body
+    });
     return doXmlHttpRequest(request, {
         onResponse, timeout, xhr
     });
