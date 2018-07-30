@@ -28,7 +28,7 @@ export default class Headers {
     public delete(name: string) {
         delete this.map[normalizeName(name)];
     }
-    public entries() {
+    public entries(): Array<Array<string>>  {
         let list = [];
         for (let name in this.map) {
             list.push([name, this.map[name].join(';')])

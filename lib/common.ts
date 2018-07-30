@@ -20,12 +20,6 @@ export function normalizeMethod(method: string) {
     var upcased = method.toUpperCase()
     return (methods.indexOf(upcased) > -1) ? upcased : method
 }
-
-let window = {
-    blob: 1,
-    formData:1,
-    arrayBuffer: 1
-}
 export const support = {
     blob: 'FileReader' in window && 'Blob' in window && (function () {
         try {

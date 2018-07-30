@@ -61,7 +61,7 @@ var CFetch =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -220,6 +220,57 @@ function decode(body) {
     return form;
 }
 exports.decode = decode;
+/**
+ *
+ * 解析参数，
+ * 将对象转换成obj[a]的形式
+ * 将数组转换成obj[]的形式
+ */
+function parseParams(_data, prefix) {
+    if (prefix === void 0) { prefix = ''; }
+    var data = [];
+    for (var key in _data) {
+        if (_data[key] == undefined) {
+            continue;
+        }
+        var _key = prefix == '' ? key : (prefix + '[' + key + ']');
+        //object
+        if (Object.prototype.toString.call(_data[key]) == '[object Object]') {
+            data.push.apply(data, parseParams(_data[key], _key));
+        }
+        else if (Object.prototype.toString.call(_data[key]) == '[object Array]') {
+            for (var _i = 0, _a = _data[key]; _i < _a.length; _i++) {
+                var v = _a[_i];
+                data.push([_key + '[]', v]);
+            }
+        }
+        else {
+            data.push([_key, _data[key]]);
+        }
+    }
+    return data;
+}
+/**
+ * 将参数转换为string
+ */
+function object2query(_data) {
+    var data = parseParams(_data);
+    return data.map(function (item) { return item.join('='); }).join('&');
+}
+exports.object2query = object2query;
+/**
+ * 将参数转换为formdata
+ */
+function params2FormData(_data) {
+    var data = parseParams(_data);
+    var formData = new FormData();
+    for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
+        var value = data_1[_i];
+        formData.append(value[0], value[1]);
+    }
+    return formData;
+}
+exports.params2FormData = params2FormData;
 
 
 /***/ }),
@@ -322,240 +373,6 @@ exports["default"] = Body;
 
 "use strict";
 
-exports.__esModule = true;
-var api_1 = __webpack_require__(4);
-exports.Api = api_1["default"];
-
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
-exports.__esModule = true;
-var charm_request_1 = __webpack_require__(5);
-var Api = /** @class */ (function () {
-    /**
-     *
-     * @param key 实例唯一键
-     * @param _options 配置参数 createOption
-     */
-    function Api(key, _options) {
-        this._options = _options;
-        Api._instances[key] = this;
-    }
-    /**
-     * 获取实例
-     * @param key 实例唯一键
-     */
-    Api.getInstance = function (key) {
-        return Api._instances[key];
-    };
-    /**
-     * 删除实例 实例唯一键
-     * @param key
-     */
-    Api.removeInstance = function (key) {
-        delete Api._instances[key];
-    };
-    /**
-     * 拼接url,当url以http|https开头的不拼接baseUrl
-     * @param url url
-     */
-    Api.prototype.joinUrl = function (url) {
-        if (/^(https?:)?\/\//.test(url)) {
-            return url;
-        }
-        //去除多余的/ 保留一个即可
-        return this._options.baseUrl + url;
-    };
-    /**
-     * 获取请求的url
-     * @param body
-     */
-    Api.prototype.querystring = function (url) {
-        return this.joinUrl(url);
-    };
-    Api.prototype.get = function (url, options) {
-        if (options === void 0) { options = {}; }
-        return this._request(url, 'get', options);
-    };
-    Api.prototype._request = function (url, method, options) {
-        return charm_request_1.doRequest(this.joinUrl(url), __assign({}, this._options, options, { headers: __assign({}, this._options.headers, options.headers), method: method }));
-    };
-    /**
-     * 实例容器
-     */
-    Api._instances = {};
-    return Api;
-}());
-exports["default"] = Api;
-
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-exports.__esModule = true;
-var request_1 = __importDefault(__webpack_require__(6));
-var response_1 = __importDefault(__webpack_require__(7));
-var header_1 = __importDefault(__webpack_require__(0));
-/**
- *
- * 解析参数，
- * 将对象转换成obj[a]的形式
- * 将数组转换成obj[]的形式
- */
-function parseParams(_data, prefix) {
-    if (prefix === void 0) { prefix = ''; }
-    var data = [];
-    for (var key in _data) {
-        if (_data[key] == undefined) {
-            continue;
-        }
-        var _key = prefix == '' ? key : (prefix + '[' + key + ']');
-        //object
-        if (Object.prototype.toString.call(_data[key]) == '[object Object]') {
-            data.push.apply(data, parseParams(_data[key], _key));
-        }
-        else if (Object.prototype.toString.call(_data[key]) == '[object Array]') {
-            for (var _i = 0, _a = _data[key]; _i < _a.length; _i++) {
-                var v = _a[_i];
-                data.push([_key + '[]', v]);
-            }
-        }
-        else {
-            data.push([_key, _data[key]]);
-        }
-    }
-    return data;
-}
-/**
- * 将参数转换为string
- */
-function params2String(_data) {
-    var data = parseParams(_data);
-    return data.map(function (item) { return item.join('='); }).join('&');
-}
-exports.params2String = params2String;
-/**
- * 将参数转换为formdata
- */
-function params2FormData(_data) {
-    var data = parseParams(_data);
-    var formData = new FormData();
-    for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
-        var value = data_1[_i];
-        formData.append(value[0], value[1]);
-    }
-    return formData;
-}
-exports.params2FormData = params2FormData;
-function buildUrl(url) {
-    return (url).replace(/([^(https?:)])(\/)+/ig, '$1\/').replace(/\/\??$/, '\/');
-}
-exports.buildUrl = buildUrl;
-function doRequest(url, _a) {
-    var method = _a.method, headers = _a.headers, mode = _a.mode, onResponse = _a.onResponse, onRequest = _a.onRequest, callback = _a.callback, timeout = _a.timeout;
-    //创建请求对象
-    var request = new request_1["default"](buildUrl(url), {
-        method: method,
-        header: new header_1["default"](headers),
-        mode: mode
-    });
-    //调用onrequest
-    onRequest(request);
-    return doXmlHttpRequest(request, {
-        onResponse: onResponse, callback: callback, timeout: timeout
-    });
-}
-exports.doRequest = doRequest;
-function doXmlHttpRequest(request, _a) {
-    var onResponse = _a.onResponse, callback = _a.callback, timeout = _a.timeout;
-    return new Promise(function (resolve, reject) {
-        try {
-            var xmlHttp_1;
-            //IE7以上
-            if ('XMLHttpRequest' in window) {
-                xmlHttp_1 = new XMLHttpRequest();
-            }
-            else {
-                xmlHttp_1 = new ActiveXObject("Microsoft.XMLHTTP");
-            }
-            if (timeout) {
-                xmlHttp_1.timeout = timeout;
-            }
-            xmlHttp_1.open(request.method, request.url, true);
-            if (Object.prototype.toString.call(callback) == '[object Object]') {
-                callback.progress && (xmlHttp_1.upload.onprogress = function (event) {
-                    callback.progress(event.loaded, event.total);
-                });
-                callback.loadstart && (xmlHttp_1.upload.onloadstart = callback.loadstart);
-                callback.loadend && (xmlHttp_1.upload.onloadend = callback.loadend);
-                callback.error && (xmlHttp_1.upload.onerror = callback.error);
-                callback.timeout && (xmlHttp_1.upload.ontimeout = callback.timeout);
-                callback.abort && (xmlHttp_1.upload.onabort = callback.abort);
-                callback.load && (xmlHttp_1.upload.onload = callback.load);
-            }
-            else {
-                reject("callback must object");
-            }
-            xmlHttp_1.onload = function () {
-                try {
-                    if (xmlHttp_1.readyState != 4) {
-                        return;
-                    }
-                    var headers_1 = {};
-                    xmlHttp_1.getAllResponseHeaders().split('\n').forEach(function (item) {
-                        var index = item.indexOf(':');
-                        if (index != -1) {
-                            headers_1[item.substring(0, index)] = item.substr(index + 1).trim();
-                        }
-                    });
-                    var res = new response_1["default"](xmlHttp_1.response, {
-                        headers: new header_1["default"](xmlHttp_1.getAllResponseHeaders()),
-                        status: xmlHttp_1.status,
-                        statusText: xmlHttp_1.statusText
-                    });
-                    resolve(onResponse(res));
-                }
-                catch (err) {
-                    reject(err);
-                }
-            };
-            xmlHttp_1.onerror = function (err) {
-                reject(err);
-            };
-            xmlHttp_1.send(request.method != 'GET' ? request.body : null);
-        }
-        catch (e) {
-            reject(e);
-        }
-    });
-}
-exports.doXmlHttpRequest = doXmlHttpRequest;
-
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -590,7 +407,7 @@ var Request = /** @class */ (function (_super) {
             _this.url = options.url || '';
             _this.method = options.method || '';
             _this.mode = options.mode || "no-cors";
-            if (!options.header) {
+            if (!options.headers) {
                 _this.headers = new header_1["default"](input.headers);
             }
             if (!_this.body) {
@@ -601,8 +418,8 @@ var Request = /** @class */ (function (_super) {
         else {
             _this.url = input;
         }
-        if (options.header || !_this.headers) {
-            _this.headers = new header_1["default"](options.header);
+        if (options.headers || !_this.headers) {
+            _this.headers = new header_1["default"](options.headers);
         }
         _this.method = common_1.normalizeMethod(options.method || _this.method || 'GET');
         _this.mode = options.mode || _this.mode || null;
@@ -621,7 +438,7 @@ exports["default"] = Request;
 
 
 /***/ }),
-/* 7 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -675,6 +492,224 @@ var Response = /** @class */ (function (_super) {
     return Response;
 }(body_1["default"]));
 exports["default"] = Response;
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+exports.__esModule = true;
+var api_1 = __importDefault(__webpack_require__(6));
+var common_1 = __webpack_require__(1);
+exports.object2query = common_1.object2query;
+var header_1 = __webpack_require__(0);
+exports.Headers = header_1["default"];
+var response_1 = __webpack_require__(4);
+exports.Respnse = response_1["default"];
+var request_1 = __webpack_require__(3);
+exports.Request = request_1["default"];
+var body_1 = __webpack_require__(2);
+exports.Body = body_1["default"];
+exports["default"] = api_1["default"];
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+exports.__esModule = true;
+var charm_request_1 = __webpack_require__(7);
+var Api = /** @class */ (function () {
+    /**
+     *
+     * @param key 实例唯一键
+     * @param _options 配置参数 createOption
+     */
+    function Api(key, _options) {
+        this._options = _options;
+        Api._instances[key] = this;
+    }
+    /**
+     * 获取实例
+     * @param key 实例唯一键
+     */
+    Api.getInstance = function (key) {
+        return Api._instances[key];
+    };
+    /**
+     * 删除实例 实例唯一键
+     * @param key
+     */
+    Api.removeInstance = function (key) {
+        delete Api._instances[key];
+    };
+    /**
+     * 拼接url,当url以http|https开头的不拼接baseUrl
+     * @param url url
+     */
+    Api.prototype.joinUrl = function (url) {
+        if (/^(https?:)?\/\//.test(url)) {
+            return this.build(url);
+        }
+        //去除多余的/ 保留一个即可
+        return this.build(this._options.baseUrl + url);
+    };
+    Api.prototype.build = function (url) {
+        return (url).replace(/([^(https?:)])(\/)+/ig, '$1\/').replace(/\/\//, "\/");
+    };
+    /**
+     * 获取请求的url
+     * @param body
+     */
+    Api.prototype.querystring = function (url) {
+        return this.joinUrl(url);
+    };
+    Api.prototype.get = function (url, data, options) {
+        if (data === void 0) { data = {}; }
+        if (options === void 0) { options = {}; }
+        return this._request(url, 'get', __assign({}, options, { data: data }));
+    };
+    Api.prototype.post = function (url, data, options) {
+        if (data === void 0) { data = {}; }
+        if (options === void 0) { options = {}; }
+        return this._request(url, 'post', __assign({}, options, { data: data }));
+    };
+    Api.prototype._request = function (url, method, options) {
+        return charm_request_1.doRequest(this.joinUrl(url), __assign({}, this._options, options, { 
+            //合并header
+            headers: __assign({}, this._options.headers, options.headers), method: method }));
+    };
+    /**
+     * 实例容器
+     */
+    Api._instances = {};
+    return Api;
+}());
+exports["default"] = Api;
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+exports.__esModule = true;
+var request_1 = __importDefault(__webpack_require__(3));
+var response_1 = __importDefault(__webpack_require__(4));
+var header_1 = __importDefault(__webpack_require__(0));
+function buildUrl(url) {
+    return (url).replace(/([^(https?:)])(\/)+/ig, '$1\/').replace(/\/\??$/, '\/');
+}
+exports.buildUrl = buildUrl;
+function doRequest(url, _a) {
+    var method = _a.method, headers = _a.headers, mode = _a.mode, onResponse = _a.onResponse, onRequest = _a.onRequest, timeout = _a.timeout, data = _a.data, xhr = _a.xhr;
+    //创建请求对象
+    var request = new request_1["default"](buildUrl(url), {
+        method: method,
+        headers: new header_1["default"](headers),
+        mode: mode,
+        body: method.toLocaleUpperCase() == 'GET' ? null : data
+    });
+    //调用onrequest
+    onRequest(request, data);
+    return doXmlHttpRequest(request, {
+        onResponse: onResponse, timeout: timeout, xhr: xhr
+    });
+}
+exports.doRequest = doRequest;
+function doXmlHttpRequest(request, _a) {
+    var onResponse = _a.onResponse, timeout = _a.timeout, xhr = _a.xhr;
+    return new Promise(function (resolve, reject) {
+        try {
+            var xmlHttp_1;
+            //IE7以上
+            if ('XMLHttpRequest' in window) {
+                xmlHttp_1 = new XMLHttpRequest();
+            }
+            else {
+                xmlHttp_1 = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            if (timeout) {
+                xmlHttp_1.timeout = timeout;
+            }
+            //设置请求方法与请求地址
+            xmlHttp_1.open(request.method, request.url, true);
+            //调用xhr方法
+            if (xhr) {
+                if (Object.prototype.toString.call(xhr) != '[object Function]') {
+                    reject("xhr必须是函数");
+                }
+                else {
+                    xhr(xmlHttp_1);
+                }
+            }
+            //存在请求头就设置请求头
+            if (request.headers) {
+                var headers = request.headers.entries();
+                headers.forEach(function (_a) {
+                    var key = _a[0], value = _a[1];
+                    xmlHttp_1.setRequestHeader(key, value);
+                });
+            }
+            xmlHttp_1.onreadystatechange = xmlHttp_1.onload = function onload() {
+                try {
+                    if (xmlHttp_1.readyState != 4) {
+                        return;
+                    }
+                    var headers_1 = {};
+                    //获取response对象
+                    xmlHttp_1.getAllResponseHeaders().split('\n').forEach(function (item) {
+                        var index = item.indexOf(':');
+                        if (index != -1) {
+                            headers_1[item.substring(0, index)] = item.substr(index + 1).trim();
+                        }
+                    });
+                    var res = new response_1["default"](xmlHttp_1.statusText, {
+                        headers: new header_1["default"](headers_1),
+                        status: xmlHttp_1.status,
+                        statusText: xmlHttp_1.statusText
+                    });
+                    res = onResponse(res);
+                    if (!(res instanceof response_1["default"])) {
+                        reject("onResponse must return response object");
+                    }
+                    resolve(res);
+                }
+                catch (err) {
+                    reject(err);
+                }
+            };
+            xmlHttp_1.onerror = function (err) {
+                reject(err);
+            };
+            xmlHttp_1.send(request._bodyInit || null);
+        }
+        catch (e) {
+            reject(e);
+        }
+    });
+}
+exports.doXmlHttpRequest = doXmlHttpRequest;
+;
 
 
 /***/ })
