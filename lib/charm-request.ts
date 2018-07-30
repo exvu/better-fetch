@@ -1,6 +1,7 @@
 import Request, { RequestMode } from './request';
 import Response from './response';
 import Headers from './header';
+import { object2query, params2FormData, isIncloudFile } from './common';
 
 export function buildUrl(url: string): string {
     return (url).replace(/([^(https?:)])(\/)+/ig, '$1\/').replace(/\/\??$/, '\/');
@@ -11,20 +12,89 @@ export function doRequest(url: string, {
         method: string, mode: RequestMode, headers: { [index: string]: string },
         onRequest: (req: Request, data: any) => any,
         onResponse: (res: Response) => any,
-        data: { [index: string]: any },
+        data: { [index: string]: any } | string,
         timeout: number,
         xhr: Function
     }): Promise<Response> {
-
+    let body: any;
     //创建请求对象
     let request = new Request(buildUrl(url), {
         method,
         headers: new Headers(headers),
         mode,
-        body: method.toLocaleUpperCase() == 'GET' ? null : data
     });
     //调用onrequest
     onRequest(request, data);
+
+    //不存在数据,就自动判断
+    if (!request.headers.get('Content-Type')) {
+        if (typeof data !== "object") {
+            try {
+                data = JSON.parse(data);
+                request.headers.set('Content-Type', "application/json");
+
+            } catch (e) {
+                request.headers.set('Content-Type', "text/plain");
+            }
+
+        } else {
+            if (isIncloudFile(data)) {
+                request.headers.set('Content-Type', "multipart/form-data");
+            } else {
+                request.headers.set('Content-Type', "application/x-www-form-urlencoded");
+            }
+        }
+
+    }
+    let contentType = request.headers.get('Content-Type') || '';
+    let index = contentType.indexOf(';')
+    let dataType = index != -1 ?
+        contentType.substring(0, contentType)
+        : contentType;
+
+    switch (dataType) {
+        case "application/json":
+            try {
+                if (typeof data === "string") {
+                    body = JSON.parse(data);
+                } else if (typeof data == "object") {
+                    body = JSON.stringify(data);
+                } else {
+                    throw new Error("application/json allow data type json string or object");
+                }
+            } catch (e) {
+                throw new Error("application/json allow data type json string  or object");
+            }
+            break;
+        case "application/x-www-form-urlencoded":
+
+            if (typeof data == "object") {
+                body = object2query(data);
+            } else {
+                throw new Error("application/x-www-form-urlencoded  allow data type object");
+            }
+            break;
+        case "multipart/form-data":
+            if (typeof data == "object") {
+                body = params2FormData(data);
+            } else {
+                throw new Error("multipart/form-data allow  data type object");
+            }
+            request.headers.delete('content-type');
+            break;
+        case "text/plain":
+        default:
+            if (typeof data !== "string") {
+                body = JSON.stringify(data);
+            }
+            break;
+    }
+
+    request._initBody(body, {
+        method,
+        headers: new Headers(headers),
+        mode,
+    })
     return doXmlHttpRequest(request, {
         onResponse, timeout, xhr
     });
@@ -78,16 +148,16 @@ export function doXmlHttpRequest(request: Request, { onResponse, timeout, xhr }:
                             headers[item.substring(0, index)] = item.substr(index + 1).trim();
                         }
                     })
-                    let res = new Response(xmlHttp.statusText, {
+                    let res = new Response(xmlHttp.responseText, {
                         headers: new Headers(headers),
                         status: xmlHttp.status,
                         statusText: xmlHttp.statusText,
                     });
-                    res = onResponse(res);
-                    if (!(res instanceof Response)) {
-                        reject("onResponse must return response object");
+                    let data = onResponse(res);
+                    if (!data) {
+                        reject("onResponse must return");
                     }
-                    resolve(res);
+                    resolve(data);
                 } catch (err) {
                     reject(err)
                 }

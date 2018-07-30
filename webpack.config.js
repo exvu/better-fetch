@@ -8,9 +8,9 @@ module.exports = {
     output: {
         path: path.join(__dirname, '/dist/'),
         filename: `${name}-${version}.js`,
-        library: "CFetch",
+        library: "CApi",
         libraryExport: 'default',
-        libraryTarget: 'var',
+        libraryTarget: 'window',
         umdNamedDefine: true
     },
     externals: function () {

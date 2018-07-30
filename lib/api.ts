@@ -59,7 +59,7 @@ export default class Api {
         return this.build(this._options.baseUrl + url);
     }
     private build(url: string) {
-        return (url).replace(/([^(https?:)])(\/)+/ig, '$1\/').replace(/\/\//,"\/");
+        return (url).replace(/([^(https?:)])(\/)+/ig, '$1\/').replace(/\/\//, "\/");
     }
     /**
      * 获取请求的url
@@ -68,13 +68,13 @@ export default class Api {
     public querystring(url: string): string {
         return this.joinUrl(url);
     }
-    public get(url: string, data: any = {}, options: { [index: string]: any } = {}) {
+    public get(url: string, data: any = '', options: { [index: string]: any } = {}) {
         return this._request(url, 'get', {
             ...options,
             data
         });
     }
-    public post(url: string, data: any = {}, options: { [index: string]: any } = {}) {
+    public post(url: string, data: any = '', options: { [index: string]: any } = {}) {
         return this._request(url, 'post', {
             ...options,
             data

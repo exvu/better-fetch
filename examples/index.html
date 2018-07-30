@@ -3,45 +3,48 @@
 <head></head>
 
 <body>
-    <form id="submit">
+    <form id="submitBtn">
         <input type="file" name="file" />
         <input type="submit" value="提交" />
     </form>
 </body>
 <script>
-    var submitBtn = document.getElementById("submit");
-
     submitBtn.onsubmit = function (event) {
         event.preventDefault();
-        // CFetch.download({
-        //     url: 'http://localhost:3001/api/admin/groups/1?a=1&b=2', body: {
-        //         file: this.file.files[0]
-        //     }
-        // }, {
-        //         progress: (event) => {
-        //             console.log(event.loaded, event.total)
-        //         }
-        //     }
-        // ).then((res) => res.json()).then(res => console.log(res))
-        let _fetch = CFetch.download({
-            url: 'https://tqapi.t.yyx-tech.com/Home/Versions/downVersions/fname/fa39e86a5b20ca1d5a13addac1a4c84c.zip', body: {
-                file: this.file.files[0]
+        var xhr;
+        var api = new CApi("api", {
+            baseUrl: 'http://localhost:8080/admin/',
+            onRequest: function (req) {
+                req.url = req.url + '?_time=' + Math.random();
+                // req.headers.set('Content-Type', 'multipart/form-data');
+                // req.headers.set('Content-Type', 'application/json');
+            },
+            onResponse: function (res) {
+                return res.json();
             }
-        }, (event) => {
-            console.log(event.loaded, event.total, event)
-        }).then((res) => res.blob()).then(res => {
-            let a = document.createElement('a');
-            a.href = window.URL.createObjectURL(res); // xhr.response is a blob
-            a.download = "1.zip"; // Set the file name.
-            a.style.display = 'none';
-            document.body.appendChild(a);
-            a.click();
-        }).catch(err => console.error(err));
+        })
+        api.post('test/request', {
+            account: 'lly',
+            password: 'e10adc3949ba59abbe56e057f20f883e',
+            // file: this.file.files[0]
+        }, {
+                xhr: function (xmlhttp) {
+                    xmlhttp.addEventListener("progress", function (evt) {
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            console.log(percentComplete);
+                        }
+                        console.log(evt)
+                    }, false);
+                    xhr = xmlhttp;
+                },
+                onResponse: function (res) {
+                    return res;
+                }
+            }).then(data => {
+                console.log(data)
+            }).catch(err => console.error(err));
 
-        setTimeout(() => {
-            console.log(_fetch)
-            _fetch.abort()
-        }, 2000)
     };
 </script>
 <script type="text/javascript" src="../dist/charm-fetch-0.0.4.js"></script>

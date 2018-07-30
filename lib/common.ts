@@ -86,7 +86,7 @@ export function decode(body: any) {
 function parseParams(_data: { [key: string]: any }, prefix: string = '') {
     let data: Array<Array<any>> = [];
     for (let key in _data) {
-        if (_data[key] == undefined) {
+        if (_data[key] == undefined || _data[key] == null) {
             continue;
         }
         let _key = prefix == '' ? key : (prefix + '[' + key + ']');
@@ -94,8 +94,13 @@ function parseParams(_data: { [key: string]: any }, prefix: string = '') {
         if (Object.prototype.toString.call(_data[key]) == '[object Object]') {
             data.push(...parseParams(_data[key], _key));
         } else if (Object.prototype.toString.call(_data[key]) == '[object Array]') {
-            for (let v of _data[key]) {
-                data.push([_key + '[]', v]);
+            for (let i in _data[key]) {
+                let v = _data[key][i];
+                if (typeof v == 'object') {
+                    data.push(...parseParams(v, _key + '['+i+']'));
+                } else {
+                    data.push([_key + '['+i+']', v]);
+                }
             }
         } else {
             data.push([_key, _data[key]]);
@@ -117,9 +122,32 @@ export function object2query(_data: { [key: string]: any }): string {
 export function params2FormData(_data: { [key: string]: any }): FormData {
 
     let data: Array<Array<any>> = parseParams(_data);
+
     let formData = new FormData();
     for (let value of data) {
         formData.append(value[0], value[1]);
     }
     return formData;
+}
+
+export function isIncloudFile(data: any): boolean {
+
+    let flag = false;
+    if (typeof data == 'object') {
+        let keys = Object.getOwnPropertyNames(data);
+        for (let key of keys) {
+            // console.log(data,key);
+            if (data[key] instanceof File) {
+                // console.log(1);
+                return true;
+            } else if (typeof data[key] == 'object') {
+                flag = isIncloudFile(data[key]);
+                // console.log(2);
+                if (flag) {
+                    return true;
+                }
+            }
+        }
+    }
+    return flag;
 }

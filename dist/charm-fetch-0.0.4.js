@@ -1,4 +1,4 @@
-var CFetch =
+window["CApi"] =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -66,76 +66,6 @@ var CFetch =
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-var common_1 = __webpack_require__(1);
-var Headers = /** @class */ (function () {
-    function Headers(headers) {
-        var _this = this;
-        this.map = {};
-        if (headers instanceof Headers) {
-            var list = headers.entries();
-            list.forEach(function (_a) {
-                var name = _a[0], value = _a[1];
-                _this.append(name, value);
-            });
-        }
-        else if (headers) {
-            Object.getOwnPropertyNames(headers).forEach(function (name) {
-                _this.append(name, headers[name]);
-            });
-        }
-    }
-    Headers.prototype.append = function (name, value) {
-        name = common_1.normalizeName(name);
-        value = common_1.normalizeValue(value);
-        var list = this.map[name];
-        if (!list) {
-            list = [];
-            this.map[name] = list;
-        }
-        list.push(value);
-    };
-    Headers.prototype["delete"] = function (name) {
-        delete this.map[common_1.normalizeName(name)];
-    };
-    Headers.prototype.entries = function () {
-        var list = [];
-        for (var name_1 in this.map) {
-            list.push([name_1, this.map[name_1].join(';')]);
-        }
-        return list;
-    };
-    Headers.prototype.get = function (name) {
-        var values = this.map[common_1.normalizeName(name)];
-        return values ? values[0] : null;
-    };
-    Headers.prototype.has = function (name) {
-        return this.map.hasOwnProperty(common_1.normalizeName(name));
-    };
-    Headers.prototype.set = function (name, value) {
-        this.map[common_1.normalizeName(name)] = [common_1.normalizeValue(value)];
-    };
-    Headers.prototype.keys = function () {
-        return Object.keys(this.map);
-    };
-    Headers.prototype.values = function () {
-        var list = [];
-        for (var name_2 in this.map) {
-            list.push(this.map[name_2].join(';'));
-        }
-        return list;
-    };
-    return Headers;
-}());
-exports["default"] = Headers;
-
-
-/***/ }),
-/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -230,7 +160,7 @@ function parseParams(_data, prefix) {
     if (prefix === void 0) { prefix = ''; }
     var data = [];
     for (var key in _data) {
-        if (_data[key] == undefined) {
+        if (_data[key] == undefined || _data[key] == null) {
             continue;
         }
         var _key = prefix == '' ? key : (prefix + '[' + key + ']');
@@ -239,9 +169,14 @@ function parseParams(_data, prefix) {
             data.push.apply(data, parseParams(_data[key], _key));
         }
         else if (Object.prototype.toString.call(_data[key]) == '[object Array]') {
-            for (var _i = 0, _a = _data[key]; _i < _a.length; _i++) {
-                var v = _a[_i];
-                data.push([_key + '[]', v]);
+            for (var i in _data[key]) {
+                var v = _data[key][i];
+                if (typeof v == 'object') {
+                    data.push.apply(data, parseParams(v, _key + '[' + i + ']'));
+                }
+                else {
+                    data.push([_key + '[' + i + ']', v]);
+                }
             }
         }
         else {
@@ -271,6 +206,99 @@ function params2FormData(_data) {
     return formData;
 }
 exports.params2FormData = params2FormData;
+function isIncloudFile(data) {
+    var flag = false;
+    if (typeof data == 'object') {
+        var keys = Object.getOwnPropertyNames(data);
+        for (var _i = 0, keys_1 = keys; _i < keys_1.length; _i++) {
+            var key = keys_1[_i];
+            // console.log(data,key);
+            if (data[key] instanceof File) {
+                // console.log(1);
+                return true;
+            }
+            else if (typeof data[key] == 'object') {
+                flag = isIncloudFile(data[key]);
+                // console.log(2);
+                if (flag) {
+                    return true;
+                }
+            }
+        }
+    }
+    return flag;
+}
+exports.isIncloudFile = isIncloudFile;
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+var common_1 = __webpack_require__(0);
+var Headers = /** @class */ (function () {
+    function Headers(headers) {
+        var _this = this;
+        this.map = {};
+        if (headers instanceof Headers) {
+            var list = headers.entries();
+            list.forEach(function (_a) {
+                var name = _a[0], value = _a[1];
+                _this.append(name, value);
+            });
+        }
+        else if (headers) {
+            Object.getOwnPropertyNames(headers).forEach(function (name) {
+                _this.append(name, headers[name]);
+            });
+        }
+    }
+    Headers.prototype.append = function (name, value) {
+        name = common_1.normalizeName(name);
+        value = common_1.normalizeValue(value);
+        var list = this.map[name];
+        if (!list) {
+            list = [];
+            this.map[name] = list;
+        }
+        list.push(value);
+    };
+    Headers.prototype["delete"] = function (name) {
+        delete this.map[common_1.normalizeName(name)];
+    };
+    Headers.prototype.entries = function () {
+        var list = [];
+        for (var name_1 in this.map) {
+            list.push([name_1, this.map[name_1].join(';')]);
+        }
+        return list;
+    };
+    Headers.prototype.get = function (name) {
+        var values = this.map[common_1.normalizeName(name)];
+        return values ? values[0] : null;
+    };
+    Headers.prototype.has = function (name) {
+        return this.map.hasOwnProperty(common_1.normalizeName(name));
+    };
+    Headers.prototype.set = function (name, value) {
+        this.map[common_1.normalizeName(name)] = [common_1.normalizeValue(value)];
+    };
+    Headers.prototype.keys = function () {
+        return Object.keys(this.map);
+    };
+    Headers.prototype.values = function () {
+        var list = [];
+        for (var name_2 in this.map) {
+            list.push(this.map[name_2].join(';'));
+        }
+        return list;
+    };
+    return Headers;
+}());
+exports["default"] = Headers;
 
 
 /***/ }),
@@ -280,7 +308,7 @@ exports.params2FormData = params2FormData;
 "use strict";
 
 exports.__esModule = true;
-var common_1 = __webpack_require__(1);
+var common_1 = __webpack_require__(0);
 var Body = /** @class */ (function () {
     function Body() {
         this.bodyUsed = false;
@@ -387,15 +415,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-var header_1 = __importDefault(__webpack_require__(0));
-var common_1 = __webpack_require__(1);
+var header_1 = __importDefault(__webpack_require__(1));
+var common_1 = __webpack_require__(0);
 var body_1 = __importDefault(__webpack_require__(2));
 var Request = /** @class */ (function (_super) {
     __extends(Request, _super);
     function Request(input, options) {
         if (options === void 0) { options = {}; }
         var _this = _super.call(this) || this;
-        _this.headers = null;
+        _this.headers = new header_1["default"]({});
         _this.method = 'GET';
         _this.mode = 'no-cors';
         _this.bodyUsed = false;
@@ -458,7 +486,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 exports.__esModule = true;
 var body_1 = __importDefault(__webpack_require__(2));
-var header_1 = __importDefault(__webpack_require__(0));
+var header_1 = __importDefault(__webpack_require__(1));
 var Response = /** @class */ (function (_super) {
     __extends(Response, _super);
     function Response(bodyInit, options) {
@@ -505,9 +533,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 exports.__esModule = true;
 var api_1 = __importDefault(__webpack_require__(6));
-var common_1 = __webpack_require__(1);
+var common_1 = __webpack_require__(0);
 exports.object2query = common_1.object2query;
-var header_1 = __webpack_require__(0);
+var header_1 = __webpack_require__(1);
 exports.Headers = header_1["default"];
 var response_1 = __webpack_require__(4);
 exports.Respnse = response_1["default"];
@@ -580,12 +608,12 @@ var Api = /** @class */ (function () {
         return this.joinUrl(url);
     };
     Api.prototype.get = function (url, data, options) {
-        if (data === void 0) { data = {}; }
+        if (data === void 0) { data = ''; }
         if (options === void 0) { options = {}; }
         return this._request(url, 'get', __assign({}, options, { data: data }));
     };
     Api.prototype.post = function (url, data, options) {
-        if (data === void 0) { data = {}; }
+        if (data === void 0) { data = ''; }
         if (options === void 0) { options = {}; }
         return this._request(url, 'post', __assign({}, options, { data: data }));
     };
@@ -615,22 +643,94 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 exports.__esModule = true;
 var request_1 = __importDefault(__webpack_require__(3));
 var response_1 = __importDefault(__webpack_require__(4));
-var header_1 = __importDefault(__webpack_require__(0));
+var header_1 = __importDefault(__webpack_require__(1));
+var common_1 = __webpack_require__(0);
 function buildUrl(url) {
     return (url).replace(/([^(https?:)])(\/)+/ig, '$1\/').replace(/\/\??$/, '\/');
 }
 exports.buildUrl = buildUrl;
 function doRequest(url, _a) {
     var method = _a.method, headers = _a.headers, mode = _a.mode, onResponse = _a.onResponse, onRequest = _a.onRequest, timeout = _a.timeout, data = _a.data, xhr = _a.xhr;
+    var body;
     //创建请求对象
     var request = new request_1["default"](buildUrl(url), {
         method: method,
         headers: new header_1["default"](headers),
-        mode: mode,
-        body: method.toLocaleUpperCase() == 'GET' ? null : data
+        mode: mode
     });
     //调用onrequest
     onRequest(request, data);
+    //不存在数据,就自动判断
+    if (!request.headers.get('Content-Type')) {
+        if (typeof data !== "object") {
+            try {
+                data = JSON.parse(data);
+                request.headers.set('Content-Type', "application/json");
+            }
+            catch (e) {
+                request.headers.set('Content-Type', "text/plain");
+            }
+        }
+        else {
+            if (common_1.isIncloudFile(data)) {
+                request.headers.set('Content-Type', "multipart/form-data");
+            }
+            else {
+                request.headers.set('Content-Type', "application/x-www-form-urlencoded");
+            }
+        }
+    }
+    var contentType = request.headers.get('Content-Type') || '';
+    var index = contentType.indexOf(';');
+    var dataType = index != -1 ?
+        contentType.substring(0, contentType)
+        : contentType;
+    switch (dataType) {
+        case "application/json":
+            try {
+                if (typeof data === "string") {
+                    body = JSON.parse(data);
+                }
+                else if (typeof data == "object") {
+                    body = JSON.stringify(data);
+                }
+                else {
+                    throw new Error("application/json allow data type json string or object");
+                }
+            }
+            catch (e) {
+                throw new Error("application/json allow data type json string  or object");
+            }
+            break;
+        case "application/x-www-form-urlencoded":
+            if (typeof data == "object") {
+                body = common_1.object2query(data);
+            }
+            else {
+                throw new Error("application/x-www-form-urlencoded  allow data type object");
+            }
+            break;
+        case "multipart/form-data":
+            if (typeof data == "object") {
+                body = common_1.params2FormData(data);
+            }
+            else {
+                throw new Error("multipart/form-data allow  data type object");
+            }
+            request.headers["delete"]('content-type');
+            break;
+        case "text/plain":
+        default:
+            if (typeof data !== "string") {
+                body = JSON.stringify(data);
+            }
+            break;
+    }
+    request._initBody(body, {
+        method: method,
+        headers: new header_1["default"](headers),
+        mode: mode
+    });
     return doXmlHttpRequest(request, {
         onResponse: onResponse, timeout: timeout, xhr: xhr
     });
@@ -683,16 +783,16 @@ function doXmlHttpRequest(request, _a) {
                             headers_1[item.substring(0, index)] = item.substr(index + 1).trim();
                         }
                     });
-                    var res = new response_1["default"](xmlHttp_1.statusText, {
+                    var res = new response_1["default"](xmlHttp_1.responseText, {
                         headers: new header_1["default"](headers_1),
                         status: xmlHttp_1.status,
                         statusText: xmlHttp_1.statusText
                     });
-                    res = onResponse(res);
-                    if (!(res instanceof response_1["default"])) {
-                        reject("onResponse must return response object");
+                    var data = onResponse(res);
+                    if (!data) {
+                        reject("onResponse must return");
                     }
-                    resolve(res);
+                    resolve(data);
                 }
                 catch (err) {
                     reject(err);
