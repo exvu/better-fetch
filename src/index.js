@@ -6,6 +6,7 @@ exports.__esModule = true;
 var api_1 = __importDefault(require("./api"));
 var common_1 = require("./common");
 exports.object2query = common_1.object2query;
+exports.params2FormData = common_1.params2FormData;
 var header_1 = require("./header");
 exports.Headers = header_1["default"];
 var response_1 = require("./response");

@@ -83,7 +83,7 @@ export function decode(body: any) {
  * 将对象转换成obj[a]的形式
  * 将数组转换成obj[]的形式
  */
-function parseParams(_data: { [key: string]: any }, prefix: string = '') {
+ function parseParams(_data: { [key: string]: any }, prefix: string = '') {
     let data: Array<Array<any>> = [];
     for (let key in _data) {
         if (_data[key] == undefined || _data[key] == null) {

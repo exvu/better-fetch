@@ -9,9 +9,9 @@ module.exports = {
         path: path.join(__dirname, '/dist/'),
         filename: `${name}-${version}.js`,
         library: "CApi",
-        libraryExport: 'default',
         libraryTarget: 'window',
-        umdNamedDefine: true
+        umdNamedDefine: true,
+        libraryExport:'default'
     },
     externals: function () {
         let manifest = require('./package.json');

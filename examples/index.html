@@ -14,14 +14,11 @@
         var xhr;
         var api = new CApi("api", {
             baseUrl: 'http://localhost:8080/admin/',
-            onRequest: function ( req) {
-                req.url = req.url + '?_time=' + Math.random();
+            onRequest: function (req) {
                 req.data = {
-                    a:1,
-                    b:2
+                    a: 1,
+                    b: 2
                 }
-                // req.headers.set('Content-Type', 'multipart/form-data');
-                // req.headers.set('Content-Type', 'application/json');
             },
             onResponse: function (res) {
                 return res.json();
@@ -30,7 +27,6 @@
         api.post('test/request', {
             account: 'lly',
             password: 'e10adc3949ba59abbe56e057f20f883e',
-            // file: this.file.files[0]
         }, {
                 xhr: function (xmlhttp) {
                     xmlhttp.addEventListener("progress", function (evt) {
@@ -51,6 +47,6 @@
 
     };
 </script>
-<script type="text/javascript" src="../dist/charm-fetch-0.0.4.js"></script>
+<script type="text/javascript" src="../dist/charm-api-0.0.1.js"></script>
 
 </html>

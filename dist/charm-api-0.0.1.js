@@ -533,8 +533,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 exports.__esModule = true;
 var api_1 = __importDefault(__webpack_require__(6));
+exports["default"] = api_1["default"];
 var common_1 = __webpack_require__(0);
 exports.object2query = common_1.object2query;
+exports.params2FormData = common_1.params2FormData;
 var header_1 = __webpack_require__(1);
 exports.Headers = header_1["default"];
 var response_1 = __webpack_require__(4);
@@ -543,7 +545,6 @@ var request_1 = __webpack_require__(3);
 exports.Request = request_1["default"];
 var body_1 = __webpack_require__(2);
 exports.Body = body_1["default"];
-exports["default"] = api_1["default"];
 
 
 /***/ }),
@@ -562,6 +563,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 exports.__esModule = true;
 var charm_request_1 = __webpack_require__(7);
+var common_1 = __webpack_require__(0);
 var Api = /** @class */ (function () {
     /**
      *
@@ -617,10 +619,31 @@ var Api = /** @class */ (function () {
         if (options === void 0) { options = {}; }
         return this._request(url, 'post', __assign({}, options, { data: data }));
     };
+    Api.prototype["delete"] = function (url, data, options) {
+        if (data === void 0) { data = ''; }
+        if (options === void 0) { options = {}; }
+        return this._request(url, 'delete', __assign({}, options, { data: data }));
+    };
+    Api.prototype.put = function (url, data, options) {
+        if (data === void 0) { data = ''; }
+        if (options === void 0) { options = {}; }
+        return this._request(url, 'put', __assign({}, options, { data: data }));
+    };
+    Api.prototype.patch = function (url, data, options) {
+        if (data === void 0) { data = ''; }
+        if (options === void 0) { options = {}; }
+        return this._request(url, 'patch', __assign({}, options, { data: data }));
+    };
     Api.prototype._request = function (url, method, options) {
         return charm_request_1.doRequest(this.joinUrl(url), __assign({}, this._options, options, { 
             //合并header
             headers: __assign({}, this._options.headers, options.headers), method: method }));
+    };
+    Api.object2query = function (data) {
+        return common_1.object2query(data);
+    };
+    Api.params2FormData = function (data) {
+        return common_1.params2FormData(data);
     };
     /**
      * 实例容器
@@ -727,7 +750,7 @@ function doRequest(url, _a) {
             break;
     }
     //创建请求对象
-    var request = new request_1["default"](options.url, {
+    var request = new request_1["default"](options.url + (options.url.indexOf('?') == -1 ? '?' : '&') + '_r=' + Math.random(), {
         method: method,
         headers: options.headers,
         mode: options.mode,

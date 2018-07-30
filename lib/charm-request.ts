@@ -96,12 +96,14 @@ export function doRequest(url: string, {
             break;
     }
     //创建请求对象
-    let request = new Request(options.url, {
-        method,
-        headers: options.headers,
-        mode: options.mode,
-        body: method.toLocaleUpperCase() == 'GET' ? null : body
-    });
+    let request = new Request(
+        options.url + (options.url.indexOf('?') == -1 ? '?' : '&') + '_r=' + Math.random(),
+        {
+            method,
+            headers: options.headers,
+            mode: options.mode,
+            body: method.toLocaleUpperCase() == 'GET' ? null : body
+        });
     return doXmlHttpRequest(request, {
         onResponse, timeout, xhr
     });

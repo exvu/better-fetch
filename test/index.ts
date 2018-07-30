@@ -1,24 +1,20 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-exports.__esModule = true;
-var index_1 = __importDefault(require("./index"));
+import Api, { Respnse, object2query } from '../lib/index';
 //创建一个api实例
-var admin = new index_1["default"]("api", {
+let admin = new Api("api", {
     //基地址
     baseUrl: "http://exvu.vip//1",
     //请求前数据处理
-    onRequest: function (req) {
+    onRequest: (req: any) => {
+
         //设置请求头
-        req.headers.set("afasdf", "1");
+        req.headers.set("afasdf", "1")
         //修改请求数据
         req.data = { a: 1 };
     },
     //
-    onResponse: function (res) {
+    onResponse: (res: Respnse) => {
         //获取请求头
-        res.headers.get("access-token");
+        res.headers.get("access-token")
         //必须返回数据,then方法会接收
         return res;
     }
@@ -35,17 +31,19 @@ admin.get('/', { a: 1 }, {
         "a": 1111
     },
     //获取xmlhttprequest对象,用于终止请求,上传进度
-    xhr: function (xhr) {
+    xhr: function (xhr: XMLHttpRequest) {
+
     }
 }).then();
 //请求的url
-admin.querystring("/11");
+admin.querystring("/11")
+
 //将数据装换为query
-index_1.object2query({
+object2query({
     a: 1,
     b: [1, 2],
     c: {
         a: 1,
         b: [1, 3]
     }
-});
+})

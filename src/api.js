@@ -64,6 +64,21 @@ var Api = /** @class */ (function () {
         if (options === void 0) { options = {}; }
         return this._request(url, 'post', __assign({}, options, { data: data }));
     };
+    Api.prototype["delete"] = function (url, data, options) {
+        if (data === void 0) { data = ''; }
+        if (options === void 0) { options = {}; }
+        return this._request(url, 'delete', __assign({}, options, { data: data }));
+    };
+    Api.prototype.put = function (url, data, options) {
+        if (data === void 0) { data = ''; }
+        if (options === void 0) { options = {}; }
+        return this._request(url, 'put', __assign({}, options, { data: data }));
+    };
+    Api.prototype.patch = function (url, data, options) {
+        if (data === void 0) { data = ''; }
+        if (options === void 0) { options = {}; }
+        return this._request(url, 'patch', __assign({}, options, { data: data }));
+    };
     Api.prototype._request = function (url, method, options) {
         return charm_request_1.doRequest(this.joinUrl(url), __assign({}, this._options, options, { 
             //合并header

@@ -89,7 +89,7 @@ function doRequest(url, _a) {
             break;
     }
     //创建请求对象
-    var request = new request_1["default"](options.url, {
+    var request = new request_1["default"](options.url + (options.url.indexOf('?') == -1 ? '?' : '&') + '_r=' + Math.random(), {
         method: method,
         headers: options.headers,
         mode: options.mode,

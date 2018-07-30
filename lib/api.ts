@@ -1,4 +1,5 @@
 import { doRequest } from './charm-request';
+import { object2query, params2FormData } from './common';
 import Request from './request';
 import Response from './response';
 /**
@@ -80,6 +81,24 @@ export default class Api {
             data
         });
     }
+    public delete(url: string, data: any = '', options: { [index: string]: any } = {}) {
+        return this._request(url, 'delete', {
+            ...options,
+            data
+        });
+    }
+    public put(url: string, data: any = '', options: { [index: string]: any } = {}) {
+        return this._request(url, 'put', {
+            ...options,
+            data
+        });
+    }
+    public patch(url: string, data: any = '', options: { [index: string]: any } = {}) {
+        return this._request(url, 'patch', {
+            ...options,
+            data
+        });
+    }
     private _request(url: string, method: string, options: any) {
 
         return doRequest(this.joinUrl(url), {
@@ -92,5 +111,12 @@ export default class Api {
             },
             method
         });
+    }
+    public static object2query(data: any) {
+
+        return object2query(data);
+    }
+    public static params2FormData(data: any) {
+        return params2FormData(data);
     }
 }

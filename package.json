@@ -1,7 +1,7 @@
 {
-  "name": "charm-fetch",
-  "version": "0.0.4",
-  "description": "charm-fetch",
+  "name": "charm-api",
+  "version": "0.0.1",
+  "description": "charm-api",
   "main": "./src/index.js",
   "directories": {
     "lib": "lib"
