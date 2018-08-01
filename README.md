@@ -11,8 +11,8 @@ charm-api 使用文档
 安装与配置
 ==========
 ```sh
-$ npm install -g charm-api #全局安装
-$ npm install --save-dev charm-api #局部安装
+$ npm install -g @exvu/charm-api #全局安装
+$ npm install --save-dev @exvu/charm-api #局部安装
 ```
 用法
 ==========
