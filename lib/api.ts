@@ -5,7 +5,7 @@ import Response from './response';
 /**
  * charm-Api实例配置参数
  */
-interface CreateOption {
+export interface CreateOption {
     //基地址
     baseUrl: string,
     //请求发送之前的回调

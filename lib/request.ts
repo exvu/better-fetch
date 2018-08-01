@@ -2,7 +2,7 @@
 import Headers from './header';
 import { normalizeMethod } from './common';
 import Body from './body';
-interface RequestInit {
+export interface RequestInit {
     headers?: Headers,
     body?: RequestBody,
     bodyUsed?: boolean,
@@ -11,7 +11,7 @@ interface RequestInit {
     mode?: RequestMode,
 }
 export type RequestMode = "navigate" | "same-origin" | "no-cors" | "cors";
-type RequestBody = Blob | Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | ArrayBuffer | FormData | string | null | { [index: string]: string }
+export type RequestBody = Blob | Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | ArrayBuffer | FormData | string | null | { [index: string]: string }
 export default class Request extends Body {
 
     public readonly headers: Headers = new Headers({});
