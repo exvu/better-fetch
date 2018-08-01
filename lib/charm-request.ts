@@ -4,7 +4,7 @@ import Headers from './header';
 import { object2query, params2FormData, isIncloudFile } from './common';
 
 export function buildUrl(url: string): string {
-    return (url).replace(/([^(https?:)])(\/)+/ig, '$1\/').replace(/\/\??$/, '\/');
+    return (url).replace(/([^(https?:)])(\/)+/ig, '$1\/');
 }
 export function doRequest(url: string, {
     method, headers, mode, onResponse, onRequest, timeout, data, xhr

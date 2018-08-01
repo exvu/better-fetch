@@ -60,7 +60,7 @@ export default class Api {
         return this.build(this._options.baseUrl + url);
     }
     private build(url: string) {
-        return (url).replace(/([^(https?:)])(\/)+/ig, '$1\/').replace(/\/\//, "\/");
+        return (url).replace(/([^(https?:)])(\/)+/ig, '$1\/');
     }
     /**
      * 获取请求的url
