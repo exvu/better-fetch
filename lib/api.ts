@@ -69,31 +69,31 @@ export default class Api {
     public querystring(url: string): string {
         return this.joinUrl(url);
     }
-    public get(url: string, data: any = '', options: { [index: string]: any } = {}) {
+    public get(url: string, data: any = {}, options: { [index: string]: any } = {}) {
         return this._request(url, 'get', {
             ...options,
             data
         });
     }
-    public post(url: string, data: any = '', options: { [index: string]: any } = {}) {
+    public post(url: string, data: any = {}, options: { [index: string]: any } = {}) {
         return this._request(url, 'post', {
             ...options,
             data
         });
     }
-    public delete(url: string, data: any = '', options: { [index: string]: any } = {}) {
+    public delete(url: string, data: any = {}, options: { [index: string]: any } = {}) {
         return this._request(url, 'delete', {
             ...options,
             data
         });
     }
-    public put(url: string, data: any = '', options: { [index: string]: any } = {}) {
+    public put(url: string, data: any = {}, options: { [index: string]: any } = {}) {
         return this._request(url, 'put', {
             ...options,
             data
         });
     }
-    public patch(url: string, data: any = '', options: { [index: string]: any } = {}) {
+    public patch(url: string, data: any = {}, options: { [index: string]: any } = {}) {
         return this._request(url, 'patch', {
             ...options,
             data

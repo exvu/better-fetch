@@ -58,42 +58,44 @@ export function doRequest(url: string, {
         contentType.substring(0, contentType)
         : contentType;
 
-    switch (dataType) {
-        case "application/json":
-            try {
-                if (typeof options.data === "string") {
-                    body = JSON.parse(options.data);
-                } else if (typeof data == "object") {
-                    body = JSON.stringify(options.data);
-                } else {
-                    throw new Error("application/json allow data type json string or object");
+    if (method.toLocaleLowerCase() !== 'get') {
+        switch (dataType) {
+            case "application/json":
+                try {
+                    if (typeof options.data === "string") {
+                        body = JSON.parse(options.data);
+                    } else if (typeof data == "object") {
+                        body = JSON.stringify(options.data);
+                    } else {
+                        throw new Error("application/json allow data type json string or object");
+                    }
+                } catch (e) {
+                    throw new Error("application/json allow data type json string  or object");
                 }
-            } catch (e) {
-                throw new Error("application/json allow data type json string  or object");
-            }
-            break;
-        case "application/x-www-form-urlencoded":
+                break;
+            case "application/x-www-form-urlencoded":
 
-            if (typeof options.data == "object") {
-                body = object2query(options.data);
-            } else {
-                throw new Error("application/x-www-form-urlencoded  allow data type object");
-            }
-            break;
-        case "multipart/form-data":
-            if (typeof options.data == "object") {
-                body = params2FormData(options.data);
-            } else {
-                throw new Error("multipart/form-data allow  data type object");
-            }
-            options.headers.delete('content-type');
-            break;
-        case "text/plain":
-        default:
-            if (typeof data !== "string") {
-                body = JSON.stringify(data);
-            }
-            break;
+                if (typeof options.data == "object") {
+                    body = object2query(options.data);
+                } else {
+                    throw new Error("application/x-www-form-urlencoded  allow data type object");
+                }
+                break;
+            case "multipart/form-data":
+                if (typeof options.data == "object") {
+                    body = params2FormData(options.data);
+                } else {
+                    throw new Error("multipart/form-data allow  data type object");
+                }
+                options.headers.delete('content-type');
+                break;
+            case "text/plain":
+            default:
+                if (typeof data !== "string") {
+                    body = JSON.stringify(data);
+                }
+                break;
+        }
     }
     //创建请求对象
     let request = new Request(
