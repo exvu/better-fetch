@@ -1,6 +1,6 @@
 
 import Headers from './header';
-import { normalizeMethod } from './common';
+import { normalizeMethod } from './helper';
 import Body from './body';
 export interface RequestInit {
     headers?: Headers,

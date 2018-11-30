@@ -1,7 +1,7 @@
-import Request, { RequestMode } from './request';
-import Response from './response';
-import Headers from './header';
-import { object2query, params2FormData, isIncloudFile } from './common';
+import Request, { RequestMode } from './common/request';
+import Response from './common/response';
+import Headers from './common/header';
+import { object2query, params2FormData, isIncloudFile } from './common/helper';
 
 export function buildUrl(url: string): string {
     return (url).replace(/([^(https?:)])(\/)+/ig, '$1\/');

@@ -1,7 +1,7 @@
 import { doRequest } from './charm-request';
-import { object2query, params2FormData } from './common';
-import Request from './request';
-import Response from './response';
+import { object2query, params2FormData } from './common/helper';
+import Request from './common/request';
+import Response from './common/response';
 /**
  * charm-Api实例配置参数
  */

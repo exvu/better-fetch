@@ -7,7 +7,7 @@ module.exports = {
     entry: path.join(__dirname, '/lib/index.ts'),
     output: {
         path: path.join(__dirname, '/dist/'),
-        filename: `${name}-${version}.js`,
+        filename: `${name}.js`,
         library: "CApi",
         libraryTarget: 'window',
         umdNamedDefine: true,

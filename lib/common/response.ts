@@ -2,7 +2,6 @@ import Body from "./body";
 import Headers from './header';
 
 export default class Response extends Body {
-
     public readonly type: string;
     public readonly status: number;
     public readonly ok: boolean;

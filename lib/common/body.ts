@@ -1,4 +1,4 @@
-import { support, readBlobAsArrayBuffer, readBlobAsText, decode } from './common';
+import { support, readBlobAsArrayBuffer, readBlobAsText, decode } from './helper';
 
 export default class Body {
 

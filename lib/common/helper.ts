@@ -1,3 +1,8 @@
+
+/**
+ * 规范键名
+ * @param name 
+ */
 export function normalizeName(name: string) {
     if (typeof name !== 'string') {
         name = String(name)
@@ -7,7 +12,10 @@ export function normalizeName(name: string) {
     }
     return name.toLowerCase()
 }
-
+/**
+ * 规范键值
+ * @param name 
+ */
 export function normalizeValue(value: string) {
     if (typeof value !== 'string') {
         value = String(value)
@@ -16,10 +24,18 @@ export function normalizeValue(value: string) {
 }
 const methods = ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT']
 
+/**
+ * 规范方法名
+ * @param name 
+ */
 export function normalizeMethod(method: string) {
     var upcased = method.toUpperCase()
     return (methods.indexOf(upcased) > -1) ? upcased : method
 }
+/**
+ * 判断是否支持某些特性
+ * @param name 
+ */
 export const support = {
     blob: 'FileReader' in window && 'Blob' in window && (function () {
         try {
@@ -32,14 +48,13 @@ export const support = {
     formData: 'FormData' in window,
     arrayBuffer: 'ArrayBuffer' in window
 }
-
 export function readBlobAsArrayBuffer(blob: any) {
     var reader = new FileReader()
     reader.readAsArrayBuffer(blob)
     return fileReaderReady(reader)
 }
 export function fileReaderReady(reader: FileReader) {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve: any, reject) {
         reader.onload = function () {
             resolve(reader.result)
         }
@@ -63,7 +78,10 @@ export function readBlobAsText(blob: any, options: any) {
     reader.readAsText.apply(reader, args)
     return fileReaderReady(reader)
 }
-
+/**
+ * url编码
+ * @param body 
+ */
 export function decode(body: any) {
     var form = new FormData()
     body.trim().split('&').forEach(function (bytes: any) {
@@ -78,12 +96,11 @@ export function decode(body: any) {
 }
 
 /**
- * 
  * 解析参数，
  * 将对象转换成obj[a]的形式
- * 将数组转换成obj[]的形式
+ * 将数组转换成obj[0]的形式
  */
- function parseParams(_data: { [key: string]: any }, prefix: string = '') {
+function parseParams(_data: { [key: string]: any }, prefix: string = '') {
     let data: Array<Array<any>> = [];
     for (let key in _data) {
         if (_data[key] == undefined || _data[key] == null) {
@@ -97,9 +114,9 @@ export function decode(body: any) {
             for (let i in _data[key]) {
                 let v = _data[key][i];
                 if (typeof v == 'object') {
-                    data.push(...parseParams(v, _key + '['+i+']'));
+                    data.push(...parseParams(v, _key + '[' + i + ']'));
                 } else {
-                    data.push([_key + '['+i+']', v]);
+                    data.push([_key + '[' + i + ']', v]);
                 }
             }
         } else {
@@ -129,20 +146,19 @@ export function params2FormData(_data: { [key: string]: any }): FormData {
     }
     return formData;
 }
-
+/**
+ * 是否包含文件
+ * @param data
+ */
 export function isIncloudFile(data: any): boolean {
-
     let flag = false;
     if (typeof data == 'object') {
         let keys = Object.getOwnPropertyNames(data);
         for (let key of keys) {
-            // console.log(data,key);
             if (data[key] instanceof File) {
-                // console.log(1);
                 return true;
             } else if (typeof data[key] == 'object') {
                 flag = isIncloudFile(data[key]);
-                // console.log(2);
                 if (flag) {
                     return true;
                 }

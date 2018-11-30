@@ -1,4 +1,4 @@
-import { normalizeValue, normalizeName } from './common';
+import { normalizeValue, normalizeName } from './helper';
 export default class Headers {
 
     private map: { [index: string]: any } = {};
