@@ -3,7 +3,7 @@
  * 规范键名
  * @param name 
  */
-export function normalizeName(name: string) {
+export function normalizeKey(name: string) {
     if (typeof name !== 'string') {
         name = String(name)
     }
@@ -166,4 +166,10 @@ export function isIncloudFile(data: any): boolean {
         }
     }
     return flag;
+}
+
+export function getType(obj: any) {
+    let typeStr = Object.prototype.toString.call(obj);
+    let [, type = ''] = typeStr.match(/^\[object\s+(\S+)\]$/);
+    return type.toLocaleLowerCase();
 }

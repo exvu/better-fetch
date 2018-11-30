@@ -1,5 +1,5 @@
 import Body from "./body";
-import Headers from './header';
+import Headers from './headers';
 
 export default class Response extends Body {
     public readonly type: string;

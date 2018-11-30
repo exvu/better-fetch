@@ -1,7 +1,7 @@
 
 import Api from "./api";
 import { object2query, params2FormData } from "./common/helper";
-export { default as Headers } from "./common/header";
+export { default as Headers } from "./common/headers";
 export { default as Respnse } from "./common/response";
 export { default as Request } from "./common/request";
 export { default as Body } from "./common/body";

@@ -3,11 +3,13 @@ import { support, readBlobAsArrayBuffer, readBlobAsText, decode } from './helper
 export default class Body {
 
     public bodyUsed: boolean = false;
+    
     public _bodyInit: any;
     protected _bodyText: string = '';
     protected _bodyBlob: Blob | null = null;
     protected _bodyFormData: FormData | null = null;
     protected _options: any;
+    
     public _initBody(body: any, options: any) {
         this._bodyInit = body;
         if (typeof body === "string") {

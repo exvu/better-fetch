@@ -1,17 +1,24 @@
 
-import Headers from './header';
+import Headers from './headers';
 import { normalizeMethod } from './helper';
 import Body from './body';
+
+export type RequestMode = "navigate" | "same-origin" | "no-cors" | "cors";
+export type CredentialsEnum = "omit" | "same-origin" | "include";
+export type RequestBody = Blob | Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | ArrayBuffer | FormData | string | null | { [index: string]: string }
+
 export interface RequestInit {
+    method?: string,
     headers?: Headers,
     body?: RequestBody,
-    bodyUsed?: boolean,
-    url?: string,
-    method?: string,
     mode?: RequestMode,
+    credentials?: CredentialsEnum,
+    cache?: string,
+    redirect?: string,
+    referrer?: string,
+    integrity?: string,
 }
-export type RequestMode = "navigate" | "same-origin" | "no-cors" | "cors";
-export type RequestBody = Blob | Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | ArrayBuffer | FormData | string | null | { [index: string]: string }
+
 export default class Request extends Body {
 
     public readonly headers: Headers = new Headers({});

@@ -1,6 +1,6 @@
 import Request, { RequestMode } from './common/request';
 import Response from './common/response';
-import Headers from './common/header';
+import Headers from './common/headers';
 import { object2query, params2FormData, isIncloudFile } from './common/helper';
 
 export function buildUrl(url: string): string {
