@@ -7,6 +7,7 @@ import qs from 'qs';
 
 export interface OnRequestOption {
     url: string,
+    method: string,
     headers: Headers,
     timeout: number | null,
     data: { [index: string]: any },
@@ -51,6 +52,7 @@ export default function doRequest(config: RequestOption): Promise<any> {
     }
     let request: OnRequestOption = {
         url: config.url,
+        method: config.method,
         headers: new Headers(config.headers || {}),
         data: helper.isObject(config.data) ? config.data : {},
         params: helper.isObject(config.params) ? config.params : {},
@@ -59,6 +61,8 @@ export default function doRequest(config: RequestOption): Promise<any> {
     //请求拦截器
     if (config.onRequest && helper.isFunction(config.onRequest)) {
         config.onRequest(request);
+    }
+    if(request.params && helper.isObject(request.params)){
         request.url = request.url + (request.url.indexOf('?') == -1 ? '?' : '&') + qs.stringify(request.params);
     }
     const options: AdapterOption = {
@@ -67,16 +71,17 @@ export default function doRequest(config: RequestOption): Promise<any> {
         adapter: config.adapter,
         timeout: request.timeout,
         request: new Request(request.url, {
-            body: request.data,
             headers: request.headers,
             method: config.method,
             mode: config.mode,
+            ...['GET', 'HEAD', 'OPTIONS'].indexOf(config.method) == -1 ? {} : {
+                body: request.data,
+            }
         }),
     };
     //获取合适的适配器
     let adapter: any = configs.getAdapter(options);
     return adapter(options).then((res: Response) => {
-
         //响应拦截器
         if (config.onResponse && helper.isFunction(config.onResponse)) {
             return config.onResponse(res);

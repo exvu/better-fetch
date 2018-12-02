@@ -22,7 +22,7 @@ function forEach(obj: any, callback: Function) {
 /**
  * 合并多个对象
  */
-function merge(..._arguments: any) {
+function merge(..._arguments: Array<any>) {
   const obj: { [index: string]: any } = {};
   for (let i = 0; i < _arguments.length; i++) {
     forEach(_arguments[i], function (val: any, key: string) {
@@ -38,7 +38,7 @@ function merge(..._arguments: any) {
 /**
  * 合并多个对象
  */
-function deepMerge(..._arguments: any) {
+function deepMerge(..._arguments: Array<any>) {
   const obj: { [index: string]: any } = {};
   for (let i = 0; i < _arguments.length; i++) {
     forEach(_arguments[i], function (val: any, key: string) {
@@ -54,34 +54,33 @@ function deepMerge(..._arguments: any) {
   }
   return obj;
 }
-function mergeConfig(..._arguments: any) {
+function mergeConfig(..._arguments: Array<any>) {
   const config: { [index: string]: any } = {};
   for (let i = 0; i < _arguments.length; i++) {
-    forEach(_arguments[i], function (_config: any) {
-      //合并url，data，params
-      forEach(['url', 'method', 'data', 'params'], function (prop: string) {
-        if (typeof _config[prop] !== 'undefined') {
-          config[prop] = _config[prop];
-        }
-      });
-      forEach(['headers', 'auth', 'proxy'], function (prop: string) {
-        if (checkType.isObject(_config[prop])) {
-          config[prop] = deepMerge(config[prop], _config[prop]);
-        } else if (typeof _config[prop] !== 'undefined') {
-          config[prop] = _config[prop];
-        }
-      });
+    const _config = _arguments[i];
+    //合并url，data，params
+    forEach(['url', 'method', 'data', 'params'], function (prop: string) {
+      if (typeof _config[prop] !== 'undefined') {
+        config[prop] = _config[prop];
+      }
+    });
+    forEach(['headers', 'auth', 'proxy'], function (prop: string) {
+      if (checkType.isObject(_config[prop])) {
+        config[prop] = deepMerge(config[prop], _config[prop]);
+      } else if (typeof _config[prop] !== 'undefined') {
+        config[prop] = _config[prop];
+      }
+    });
 
-      forEach([
-        'baseURL', 'onRequest', 'onResponse', 'paramsSerializer',
-        'timeout',
-      ], function (prop: string) {
-        if (typeof _config[prop] !== 'undefined') {
-          config[prop] = _config[prop];
-        } else if (typeof _config[prop] !== 'undefined') {
-          config[prop] = _config[prop];
-        }
-      });
+    forEach([
+      'baseUrl', 'onRequest', 'onResponse', 'paramsSerializer',
+      'timeout',
+    ], function (prop: string) {
+      if (typeof _config[prop] !== 'undefined') {
+        config[prop] = _config[prop];
+      } else if (typeof _config[prop] !== 'undefined') {
+        config[prop] = _config[prop];
+      }
     });
   }
   return config;
@@ -174,18 +173,29 @@ function isIncloudFile(data: any): boolean {
   }
   return flag;
 }
-function isAbsoluteURL(url:string) {
+function isAbsoluteURL(url: string) {
   return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
 };
 
-function joinUrl(prefix:string, url:string) {
+function joinUrl(prefix: string, url: string) {
   return url
     ? prefix.replace(/\/+$/, '') + '/' + url.replace(/^\/+/, '')
     : prefix;
 };
+
+function filter(data: { [index: string]: any } , _filter: Array<string>) {
+  const value: { [index: string]: any } = {};
+  for (let key in data) {
+    if (!(_filter.indexOf(key) == -1)) {
+      value[key] = data[key];
+    }
+  }
+  return value;
+}
 export default {
   merge,
   forEach,
+  filter,
   mergeConfig,
   deepMerge,
   trim,

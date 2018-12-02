@@ -16,9 +16,14 @@
             baseUrl: 'http://localhost:8080/admin/',
             onRequest: function (req) {
                 req.data = {
+                    ...req.data,
                     a: 1,
                     b: 2
                 }
+                req.params ={
+                    lly:122,
+                }
+                console.log(req);
             },
             onResponse: function (res) {
                 return res.json();
@@ -28,16 +33,6 @@
             account: 'lly',
             password: 'e10adc3949ba59abbe56e057f20f883e',
         }, {
-                xhr: function (xmlhttp) {
-                    xmlhttp.addEventListener("progress", function (evt) {
-                        if (evt.lengthComputable) {
-                            var percentComplete = evt.loaded / evt.total;
-                            console.log(percentComplete);
-                        }
-                        console.log(evt)
-                    }, false);
-                    xhr = xmlhttp;
-                },
                 onResponse: function (res) {
                     return res;
                 }
@@ -47,6 +42,6 @@
 
     };
 </script>
-<script type="text/javascript" src="../dist/charm-api-0.0.1.js"></script>
+<script type="text/javascript" src="../dist/charm-api.js"></script>
 
 </html>

@@ -60,7 +60,8 @@ export default function xhrAdapter({
             xmlHttp.onerror = (err) => {
                 reject(err)
             }
-            xmlHttp.send(request._bodyInit || null);
+            const body:any = request.body;
+            xmlHttp.send(body || null);
         } catch (e) {
             reject(e);
         }

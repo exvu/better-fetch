@@ -8,11 +8,11 @@ const DEFAULT_CONTENT_TYPE = {
 
 
 function getAllowAUseddapter() {
-    const allowList: { [index: string]: string } = {};
+    const allowList: { [index: string]: Promise<Response> } = {};
     if (typeof fetch !== 'undefined' && helper.isFunction(fetch)) {
-        allowList['fetch'] = '../adapter/browser/fetch';
+        allowList['fetch'] = require('../adapter/browser/fetch').default;
     } else if (typeof XMLHttpRequest !== 'undefined') {
-        allowList['xhr'] = '../adapter/browser/xhr';
+        allowList['xhr'] = require('../adapter/browser/xhr').default;
     }
     return allowList;
 }
@@ -23,13 +23,13 @@ function getAdapter(configs: AdapterOption): Promise<Response> {
         if (!(type in allowList)) {
             throw new Error(`env not supper ${type}`);
         }
-        return import(allowList[type]);
+        return allowList[type];
     }
     let adapter;
     if ('fetch' in allowList && !(configs.onDownloadProgress || configs.onUploadProgress)) {
-        adapter = import(allowList['fetch']);
+        adapter = allowList['fetch'];
     } else if ('xhr' in allowList) {
-        adapter = import(allowList['xhr']);
+        adapter = allowList['xhr'];
     } else {
         throw new Error('env not supper request');
     }

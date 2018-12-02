@@ -7,34 +7,31 @@ module.exports = {
     entry: path.join(__dirname, '/lib/index.ts'),
     output: {
         path: path.join(__dirname, '/dist/'),
-        filename: `${name}.js`,
+        filename: `charm-api.js`,
         library: "CApi",
         libraryTarget: 'window',
         umdNamedDefine: true,
-        libraryExport:'default'
+        libraryExport: 'default'
     },
-    externals: function () {
-        let manifest = require('./package.json');
-        let dependencies = manifest.dependencies;
-        let externals = {};
-        for (let p in dependencies) {
-            externals[p] = 'commonjs ' + p;
-        }
-        externals["cfg"] = "commonjs cfg";
-        return externals;
-    }(),
     resolve: {
         extensions: [".ts", ".js"]
     },
     module: {
         loaders: [
-            { test: /\.ts?$/, loader: "ts-loader" },
-
+            {
+                test: /\.ts?$/,
+                loader: "ts-loader",
+                // options: {
+                //     compilerOptions: {
+                //         declaration: false,
+                //     }
+                // }
+            },
         ]
     },
     plugins: [
-        new UglifyJSPlugin({
-         
-        })
+        // new UglifyJSPlugin({
+
+        // })
     ]
 }

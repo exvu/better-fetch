@@ -1,7 +1,7 @@
 import Request from './request';
 import Response from './response';
 import helper from '../helper'
-import doRequest,{OnRequestOption} from './doRequest';
+import doRequest, { OnRequestOption } from './doRequest';
 /**
  * charm-Api实例配置参数
  */
@@ -48,6 +48,10 @@ class Http {
     }
     public request(config: any) {
         config = helper.mergeConfig(this._options, config);
+        config = helper.filter(config, [
+            'baseUrl', 'onRequest', 'onResponse', 'timeout', 'headers', 'data', 'params',
+            'onDownloadProgress', 'onUploadProgress', 'adapter', 'url', 'method', 'mode',
+        ]);
         return doRequest(config);
     }
 }
@@ -58,6 +62,7 @@ class Http {
     (<Params>Http).prototype[method] = function (url: string, options: Option) {
         return this.request({
             ...options,
+            method,
             url
         });
     }
@@ -66,6 +71,7 @@ class Http {
     (<Params>Http).prototype[method] = function (url: string, data: any, options: Option) {
         return this.request({
             ...options,
+            method,
             data,
             url
         });
