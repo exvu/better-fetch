@@ -1,4 +1,4 @@
-import { normalizeValue, normalizeKey, getType } from './helper';
+import helper from '../helper';
 
 
 export default class Headers {
@@ -14,7 +14,7 @@ export default class Headers {
             list.forEach(([key, value]) => {
                 this.map[key] = value.split(';');
             })
-        } else if (init && getType(init) == 'object') {
+        } else if (init && helper.isObject(init)) {
             Object.getOwnPropertyNames(init).forEach((key) => {
                 this.append(key, init[key]);
 
@@ -27,8 +27,8 @@ export default class Headers {
     }
 
     public append(key: string, value: string): any {
-        key = normalizeKey(key);
-        value = normalizeValue(value);
+        key = helper.normalizeHeadersKey(key);
+        value = helper.normalizeHeadersValue(value);
         if (!(key in this.map)) {
             this.map[key] = [];
         }
@@ -37,9 +37,9 @@ export default class Headers {
 
 
     public delete(key: string) {
-        delete this.map[normalizeKey(key)];
+        delete this.map[helper.normalizeHeadersKey(key)];
     }
-    
+
     public entries(): Array<Array<string>> {
         let list = [];
         for (let key in this.map) {
@@ -48,14 +48,14 @@ export default class Headers {
         return list;
     }
     public get(key: string) {
-        let values = this.map[normalizeKey(key)];
+        let values = this.map[helper.normalizeHeadersKey(key)];
         return values ? values[0] : null;
     }
     public has(key: string) {
-        return this.map.hasOwnProperty(normalizeKey(key));
+        return this.map.hasOwnProperty(helper.normalizeHeadersKey(key));
     }
     public set(key: string, value: string) {
-        this.map[normalizeKey(key)] = [normalizeValue(value)];
+        this.map[helper.normalizeHeadersKey(key)] = [helper.normalizeHeadersValue(value)];
     }
     public keys() {
         return Object.keys(this.map);

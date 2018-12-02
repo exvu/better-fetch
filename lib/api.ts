@@ -1,7 +1,7 @@
-import { doRequest } from './charm-request';
-import { object2query, params2FormData } from './common/helper';
-import Request from './common/request';
-import Response from './common/response';
+import Request from './core/Request';
+import { OnRequestOption } from './core/doRequest';
+import Response from './core/Response';
+import Http from './core/Http';
 /**
  * charm-Api实例配置参数
  */
@@ -9,7 +9,7 @@ export interface CreateOption {
     //基地址
     baseUrl: string,
     //请求发送之前的回调
-    onRequest?: (req: Request, data: any) => any,
+    onRequest?: (req: OnRequestOption, data: any) => any,
     headers?: {
         [key: string]: string
     },
@@ -18,7 +18,7 @@ export interface CreateOption {
     mode?: "no-cors" | "cors",
     timeout?: number,
 }
-export default class Api {
+export default class Api extends Http {
     /**
      * 实例容器
      */
@@ -30,7 +30,8 @@ export default class Api {
      * @param key 实例唯一键
      * @param _options 配置参数 createOption
      */
-    constructor(key: string, private _options: CreateOption) {
+    constructor(key: string, _options: CreateOption) {
+        super(_options);
         Api._instances[key] = this;
     }
     /**
@@ -46,77 +47,5 @@ export default class Api {
      */
     public static removeInstance(key: string) {
         delete Api._instances[key];
-    }
-    /**
-     * 拼接url,当url以http|https开头的不拼接baseUrl
-     * @param url url
-     */
-    private joinUrl(url: string): string {
-
-        if (/^(https?:)?\/\//.test(url)) {
-            return this.build(url);
-        }
-        //去除多余的/ 保留一个即可
-        return this.build(this._options.baseUrl + url);
-    }
-    private build(url: string) {
-        return (url).replace(/([^(https?:)])(\/)+/ig, '$1\/');
-    }
-    /**
-     * 获取请求的url
-     * @param body 
-     */
-    public querystring(url: string): string {
-        return this.joinUrl(url);
-    }
-    public get(url: string, data: any = {}, options: { [index: string]: any } = {}) {
-        return this._request(url, 'get', {
-            ...options,
-            data
-        });
-    }
-    public post(url: string, data: any = {}, options: { [index: string]: any } = {}) {
-        return this._request(url, 'post', {
-            ...options,
-            data
-        });
-    }
-    public delete(url: string, data: any = {}, options: { [index: string]: any } = {}) {
-        return this._request(url, 'delete', {
-            ...options,
-            data
-        });
-    }
-    public put(url: string, data: any = {}, options: { [index: string]: any } = {}) {
-        return this._request(url, 'put', {
-            ...options,
-            data
-        });
-    }
-    public patch(url: string, data: any = {}, options: { [index: string]: any } = {}) {
-        return this._request(url, 'patch', {
-            ...options,
-            data
-        });
-    }
-    private _request(url: string, method: string, options: any) {
-
-        return doRequest(this.joinUrl(url), {
-            ...this._options,
-            ...options,
-            //合并header
-            headers: {
-                ...this._options.headers,
-                ...options.headers,
-            },
-            method
-        });
-    }
-    public static object2query(data: any) {
-
-        return object2query(data);
-    }
-    public static params2FormData(data: any) {
-        return params2FormData(data);
     }
 }

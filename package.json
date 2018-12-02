@@ -1,6 +1,6 @@
 {
   "name": "@exvu/charm-api",
-  "version": "0.0.6",
+  "version": "1.0.0",
   "description": "charm-api",
   "main": "src/index.js",
   "directories": {
@@ -21,32 +21,38 @@
     "request",
     "response",
     "browser",
-    "headers"
+    "headers",
+    "fetch"
   ],
   "homepage": "https://github.com/exvu/charm-api#readme",
   "types": "@type/index.d.ts",
   "scripts": {
-    "build:dist": "webpack",
-    "build:src": "tsc --target es5"
+    "build:dist": "del ./dist && webpack",
+    "build:src": "del ./@type ./src && tsc --target es5",
+    "prepublishOnly": "npm run build:src"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/exvu/charm-api.git"
   },
-  "author":{
-    "name":"exvu",
-    "email":"923100406@qq.com"
+  "author": {
+    "name": "exvu",
+    "email": "923100406@qq.com"
   },
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/exvu/charm-api/issues"
   },
-  
   "devDependencies": {
     "babel": "^6.23.0",
+    "del-cli": "^1.1.0",
     "ts-loader": "^3.1.1",
     "typescript": "^2.8.3",
     "uglifyjs-webpack-plugin": "^1.2.7",
     "webpack": "^3.8.1"
+  },
+  "dependencies": {
+    "@types/qs": "^6.5.1",
+    "qs": "^6.6.0"
   }
 }
