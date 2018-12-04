@@ -3,7 +3,6 @@ import Response from './Response';
 import Headers from './Headers';
 import helper from '../helper';
 import configs from './config';
-import qs from 'qs';
 
 export interface OnRequestOption {
     url: string,
@@ -62,8 +61,8 @@ export default function doRequest(config: RequestOption): Promise<any> {
     if (config.onRequest && helper.isFunction(config.onRequest)) {
         config.onRequest(request);
     }
-    if(request.params && helper.isObject(request.params)){
-        request.url = request.url + (request.url.indexOf('?') == -1 ? '?' : '&') + qs.stringify(request.params);
+    if (request.params && helper.isObject(request.params)) {
+        request.url = helper.buildUrl(request.url, request.params);
     }
     const options: AdapterOption = {
         onDownloadProgress: config.onDownloadProgress,

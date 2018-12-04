@@ -1,4 +1,3 @@
-import Request from './request';
 import Response from './response';
 import helper from '../helper'
 import doRequest, { OnRequestOption } from './doRequest';
@@ -30,7 +29,7 @@ interface Params {
 }
 class Http {
 
-    constructor(protected _options: CreateOption) {
+    constructor(private  options: CreateOption) {
     }
     /**
      * 获取url
@@ -38,16 +37,19 @@ class Http {
      * @param params 
      * @param config 
      */
-    public url(url: string, params: any, config: any) {
-        config = helper.mergeConfig(this._options, config);
-        if (config.baseUrl && !helper.isAbsoluteURL(url)) {
-            config.url = helper.joinUrl(config.baseUrl, url);
+    public url(url: string, params: {[index:string]:string}) {
+        const config = helper.mergeConfig(this.options, {
+            params,
+            url:url.toString(),
+        });
+        if (config.baseUrl && !helper.isAbsoluteURL(config.url)) {
+            config.url = helper.joinUrl(config.baseUrl, config.url);
         }
-        return config.url;
+        return helper.buildUrl(config.url, params);
 
     }
     public request(config: any) {
-        config = helper.mergeConfig(this._options, config);
+        config = helper.mergeConfig(this.options, config);
         config = helper.filter(config, [
             'baseUrl', 'onRequest', 'onResponse', 'timeout', 'headers', 'data', 'params',
             'onDownloadProgress', 'onUploadProgress', 'adapter', 'url', 'method', 'mode',

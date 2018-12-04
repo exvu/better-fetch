@@ -1,10 +1,6 @@
 import helper from '../helper'
-import Request from './Request'
 import Response from './Response'
-import { RequestOption, AdapterOption } from './doRequest';
-const DEFAULT_CONTENT_TYPE = {
-    'Content-Type': 'application/json'
-}
+import { AdapterOption } from './doRequest';
 
 
 function getAllowAUseddapter() {

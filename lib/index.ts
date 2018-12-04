@@ -1,6 +1,5 @@
 
 import Api from "./Api";
-export { default as qs } from 'qs';
 export { default as Headers } from "./core/headers";
 export { default as Respnse } from "./core/response";
 export { default as Request } from "./core/request";

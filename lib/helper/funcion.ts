@@ -108,7 +108,14 @@ function decode(body: any) {
   })
   return form
 }
+/**
+ * 将参数转换为querystring
+ */
+function object2query(_data: { [key: string]: any }): string {
 
+  let data: Array<Array<any>> = parseParams(_data);
+  return data.map(item => item.join('=')).join('&');
+}
 /**
 * 解析参数，
 * 将对象转换成obj[a]的形式
@@ -138,6 +145,10 @@ function parseParams(_data: { [key: string]: any }, prefix: string = '') {
     }
   }
   return data;
+}
+function buildUrl(url: string, params: any): string {
+  const query = object2query(params);
+  return url + (query ? (url.indexOf('?') == -1 ? '?' : '&')+query : '');
 }
 /**
 * 将参数转换为formdata
@@ -183,7 +194,7 @@ function joinUrl(prefix: string, url: string) {
     : prefix;
 };
 
-function filter(data: { [index: string]: any } , _filter: Array<string>) {
+function filter(data: { [index: string]: any }, _filter: Array<string>) {
   const value: { [index: string]: any } = {};
   for (let key in data) {
     if (!(_filter.indexOf(key) == -1)) {
@@ -203,6 +214,8 @@ export default {
   params2FormData,
   decode,
   parseParams,
+  object2query,
   isAbsoluteURL,
-  joinUrl
+  joinUrl,
+  buildUrl,
 }

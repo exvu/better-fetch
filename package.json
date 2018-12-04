@@ -53,7 +53,5 @@
     "webpack": "^3.8.1"
   },
   "dependencies": {
-    "@types/qs": "^6.5.1",
-    "qs": "^6.6.0"
   }
 }

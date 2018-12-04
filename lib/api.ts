@@ -22,9 +22,9 @@ export default class Api extends Http {
     /**
      * 实例容器
      */
-    protected static _instances: {
+    private static  _instances: {
         [index: string]: Api
-    } = {};
+    } = {} ;
     /**
      * 
      * @param key 实例唯一键

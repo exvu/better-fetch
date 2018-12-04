@@ -9,10 +9,8 @@
     </form>
 </body>
 <script>
-    submitBtn.onsubmit = function (event) {
-        event.preventDefault();
-        var xhr;
-        var api = new CApi("api", {
+    window.onload = function () {
+        window.api = new CApi("api", {
             baseUrl: 'http://localhost:8080/admin/',
             onRequest: function (req) {
                 req.data = {
@@ -20,8 +18,8 @@
                     a: 1,
                     b: 2
                 }
-                req.params ={
-                    lly:122,
+                req.params = {
+                    lly: 122,
                 }
                 console.log(req);
             },
@@ -29,19 +27,24 @@
                 return res.json();
             }
         })
-        api.post('test/request', {
-            account: 'lly',
-            password: 'e10adc3949ba59abbe56e057f20f883e',
-        }, {
-                onResponse: function (res) {
-                    return res;
-                }
-            }).then(data => {
-                console.log(data)
-            }).catch(err => console.error(err));
+        submitBtn.onsubmit = function (event) {
+            event.preventDefault();
+            var xhr;
+            api.post('test/request', {
+                account: 'lly',
+                password: 'e10adc3949ba59abbe56e057f20f883e',
+            }, {
+                    onResponse: function (res) {
+                        return res;
+                    }
+                }).then(data => {
+                    console.log(data)
+                }).catch(err => console.error(err));
 
-    };
+        };
+    }
 </script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script type="text/javascript" src="../dist/charm-api.js"></script>
 
 </html>
